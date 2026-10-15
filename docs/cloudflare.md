@@ -9,7 +9,7 @@ Envie primeiro os arquivos desta adaptação ao repositório GitHub que você co
 | Campo | Preenchimento |
 | --- | --- |
 | Project name | `purograo` |
-| Build command | Deixe vazio. O `build.command` de `wrangler.jsonc` prepara as imagens, páginas, scripts e estilos automaticamente. |
+| Build command | `npm run build:cloudflare` |
 | Deploy command | `npm run deploy:cloudflare` |
 | Enable Preview builds | Desativado inicialmente. |
 | Protect with Cloudflare Access | Desativado para a loja pública. O painel mantém seu login. |
@@ -20,6 +20,8 @@ Envie primeiro os arquivos desta adaptação ao repositório GitHub que você co
 Use Node.js 24 no ambiente de build (`NODE_VERSION=24`, se precisar escolher a versão nas configurações avançadas). A instalação usa o `package-lock.json`; Wrangler está nas dependências de desenvolvimento.
 
 O comando de deploy do projeto executa Wrangler com o modo de compilação Node, necessário para as dependências atuais do Express. Use esse comando também nas atualizações automáticas pelo GitHub.
+
+Preencha o Build command no painel: Workers Builds pode ignorar o custom build de `wrangler.jsonc`. O comando explícito garante que os assets sejam gerados antes do deploy. Na execução local, Wrangler também pode executar essa preparação automaticamente.
 
 O primeiro deploy cria o banco persistente vazio. Até a importação terminar, a API retorna 503 e não aceita pedidos; ela não cria produtos de exemplo. As páginas e os arquivos visuais já podem ser acessados.
 
