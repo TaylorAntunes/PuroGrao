@@ -6,10 +6,10 @@ const root = path.join(__dirname, '..');
 function sourceFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap(entry => {
     const filename = path.join(directory, entry.name);
-    return entry.isDirectory() ? sourceFiles(filename) : /\.(?:js|cjs)$/.test(entry.name) ? [filename] : [];
+    return entry.isDirectory() ? sourceFiles(filename) : /\.(?:js|cjs|mjs)$/.test(entry.name) ? [filename] : [];
   });
 }
-const files = ['server.js', ...['src', 'shared', 'public/js', 'scripts', 'test'].flatMap(directory => sourceFiles(path.join(root, directory)))];
+const files = ['server.js', ...['src', 'shared', 'public/js', 'scripts', 'test', 'cloudflare'].flatMap(directory => sourceFiles(path.join(root, directory)))];
 let failed = false;
 for (const file of files) {
   const result = spawnSync(process.execPath, ['--check', file], { cwd: root, encoding: 'utf8', windowsHide: true });

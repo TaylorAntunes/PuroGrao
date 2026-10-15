@@ -6,7 +6,7 @@ function createOrderLimits(options = {}) {
   const maxAttempts = positiveInteger(options.maxAttempts ?? process.env.ORDER_RATE_MAX_ATTEMPTS, 30);
   const maxIps = positiveInteger(options.maxIps ?? process.env.ORDER_RATE_MAX_IPS, 5000);
   const clock = options.clock || (() => Date.now());
-  const entries = new Map();
+  const entries = options.entries || new Map();
   let nextPrune = 0;
   const seconds = expires => Math.max(1, Math.ceil((expires - clock()) / 1000));
   const limited = expires => Object.assign(new Error('Muitos pedidos enviados. Aguarde alguns minutos antes de tentar novamente.'),
@@ -40,6 +40,7 @@ function createOrderLimits(options = {}) {
       const entry = entryFor(req.ip);
       if (entry.attempts >= maxAttempts) throw limited(entry.expires);
       entry.attempts++;
+      entries.set(String(req.ip || 'unknown'), entry);
       next();
     } catch (error) {
       res.set('Retry-After', String(error.retry_after_seconds));
@@ -50,7 +51,11 @@ function createOrderLimits(options = {}) {
     const entry = entryFor(ip);
     if (entry.created >= maxNew) throw limited(entry.expires);
   }
-  function recordCreation(ip) { entryFor(ip).created++; }
+  function recordCreation(ip) {
+    const entry = entryFor(ip);
+    entry.created++;
+    entries.set(String(ip || 'unknown'), entry);
+  }
   return { attempt, assertCreation, recordCreation, trackedIps: () => entries.size };
 }
 

@@ -32,8 +32,8 @@ test('stock migration and order lifecycle', async t => {
   process.env.ORDER_RATE_MAX_ATTEMPTS = '5000';
   const { db } = require('../src/database');
   const app = express();
-  app.use('/api', require('../src/routes/store'));
-  app.use('/api/admin', require('../src/routes/admin'));
+  app.use('/api', require('../src/routes/store')(require('../src/database')));
+  app.use('/api/admin', require('../src/routes/admin')(require('../src/database')));
   const server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   t.after(async () => {

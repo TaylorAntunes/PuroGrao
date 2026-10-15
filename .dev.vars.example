@@ -1,0 +1,6 @@
+# Copie para .dev.vars apenas para o simulador local da Cloudflare.
+# Nunca coloque secrets em wrangler.jsonc ou no Git.
+ADMIN_PASSWORD=troque-por-uma-senha-forte
+WHATSAPP_NUMBER=5585999999999
+IMPORT_TOKEN=gere-um-token-aleatorio-para-a-migracao
+ENVIRONMENT=development

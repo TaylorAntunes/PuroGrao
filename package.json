@@ -7,12 +7,24 @@
     "test": "node --test",
     "check": "node scripts/check.cjs",
     "preview": "node scripts/preview-check.cjs",
-    "verify": "npm run check && npm test"
+    "verify": "npm run check && npm test",
+    "build:cloudflare": "node scripts/build-cloudflare.cjs",
+    "dev:cloudflare": "node scripts/wrangler.cjs dev --var ENVIRONMENT:development",
+    "deploy:cloudflare": "node scripts/wrangler.cjs deploy",
+    "cloudflare:export": "node scripts/cloudflare-data.cjs export",
+    "cloudflare:import": "node scripts/cloudflare-data.cjs import",
+    "cloudflare:status": "node scripts/cloudflare-data.cjs status",
+    "check:cloudflare": "node scripts/wrangler.cjs deploy --dry-run --outdir artifacts/cloudflare-worker",
+    "test:cloudflare": "npm run check:cloudflare && node scripts/cloudflare-check.cjs"
   },
   "engines": {
     "node": ">=22.5"
   },
   "dependencies": {
     "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "miniflare": "^5.20261012.0-beta",
+    "wrangler": "^4.151.0"
   }
 }

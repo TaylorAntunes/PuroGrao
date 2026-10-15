@@ -19,8 +19,8 @@ test('kit management and automatic shipping use actual products and server total
   process.env.ADMIN_PASSWORD = 'features-test-password';
   const { db } = require('../src/database');
   const app = express();
-  app.use('/api', require('../src/routes/store'));
-  app.use('/api/admin', require('../src/routes/admin'));
+  app.use('/api', require('../src/routes/store')(require('../src/database')));
+  app.use('/api/admin', require('../src/routes/admin')(require('../src/database')));
   const server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   t.after(async () => {

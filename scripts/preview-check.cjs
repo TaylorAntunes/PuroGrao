@@ -701,8 +701,7 @@ const { mock } = require('node:test');
         if (width >= 768) assert.ok(await evaluate("document.querySelector('.hero').getBoundingClientRect().height<=400"), 'Desktop banner stays at its original compact height');
         if ([390, 1440].includes(width)) await viewportShot(`redesign-home-${theme}-${width}.png`);
         await evaluate("document.querySelector('#cartBtn').click();");
-        await evaluate('new Promise(resolve=>setTimeout(resolve,220))');
-        assert.ok(await evaluate("document.querySelector('#drawer').getBoundingClientRect().left>=0 && document.querySelector('#drawer').getBoundingClientRect().right<=innerWidth+1"));
+        await waitFor("document.querySelector('#drawer').getBoundingClientRect().left>=0 && document.querySelector('#drawer').getBoundingClientRect().right<=innerWidth+1");
         assert.equal(await evaluate("document.querySelector('#co').hidden"), true);
         await evaluate("document.querySelector('#closeCart').click();");
       }
@@ -813,7 +812,9 @@ const { mock } = require('node:test');
     await evaluate("document.querySelector('#pw').value='preview-only-password';document.querySelector('#login').requestSubmit();");
     await waitFor("document.querySelector('#dashboard-updated').textContent.includes('Atualizado')");
     // Inventory and costs use the isolated preview database, never the shop's data.
-    await evaluate("document.querySelector('.tabs [data-t=\"pr\"]').click();document.querySelector('[data-e=\"1\"]').click();document.querySelector('#pprice').value='49,00';document.querySelector('#pweight').value='1000';document.querySelector('#pcost').value='28,00';document.querySelector('#pcost').dispatchEvent(new Event('input'));");
+    await evaluate("document.querySelector('.tabs [data-t=\"pr\"]').click();");
+    await waitFor("Boolean(document.querySelector('[data-e=\"1\"]'))");
+    await evaluate("document.querySelector('[data-e=\"1\"]').click();document.querySelector('#pprice').value='49,00';document.querySelector('#pweight').value='1000';document.querySelector('#pcost').value='28,00';document.querySelector('#pcost').dispatchEvent(new Event('input'));");
     assert.match(await evaluate("document.querySelector('#product-profit-preview').textContent"), /42,86%/);
     assert.match(await evaluate("document.querySelector('#product-profit-preview').textContent"), /21,00/);
     await evaluate("document.querySelector('#pf').requestSubmit();");

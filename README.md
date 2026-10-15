@@ -87,7 +87,9 @@ Consulte [as funcionalidades e regras da loja](docs/funcionalidades.md) para pes
 
 ## Publicar e preservar os dados
 
-Use uma hospedagem com disco persistente e configure `DB_FILE` para esse disco. Defina uma senha própria, o WhatsApp real e HTTPS antes de publicar. Configure o domínio em `PUBLIC_URL` e declare os IPs do proxy em `TRUST_PROXY`, seguindo o [guia de segurança](docs/seguranca.md). O uso local continua por HTTP; o modo de produção rejeita envios sem HTTPS.
+Para **Cloudflare Workers**, o projeto possui uma entrada própria, banco persistente SQLite em Durable Object e migração dos dados locais. Consulte [o passo a passo de publicação na Cloudflare](docs/cloudflare.md) para os campos da tela, secrets e importação. O comando `npm run check:cloudflare` valida a compilação sem publicar; `npm run test:cloudflare` verifica o runtime em ambiente temporário. O uso local com `npm start` permanece disponível.
+
+Para hospedar o servidor Node tradicional, use uma hospedagem com disco persistente e configure `DB_FILE` para esse disco. Defina uma senha própria, o WhatsApp real e HTTPS antes de publicar. Configure o domínio em `PUBLIC_URL` e declare os IPs do proxy em `TRUST_PROXY`, seguindo o [guia de segurança](docs/seguranca.md). O uso local continua por HTTP; o modo de produção rejeita envios sem HTTPS.
 
 Para uma cópia simples do SQLite, pare o servidor antes de copiar `loja.db`. Ao copiar com o servidor ativo, use uma ferramenta de backup SQLite; copiar apenas o arquivo principal pode deixar dados recentes de fora por causa do WAL.
 

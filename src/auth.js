@@ -5,9 +5,7 @@ const LOGIN_WINDOW = 5 * 60000;
 const MAX_FAILURES = 5;
 const hash = value => crypto.createHash('sha256').update(value).digest();
 
-function createAuth(password) {
-  const tokens = new Map();
-  const attempts = new Map();
+function createAuth(password, { tokens = new Map(), attempts = new Map() } = {}) {
   const passwordHash = hash(password);
   function prune() {
     const now = Date.now();
