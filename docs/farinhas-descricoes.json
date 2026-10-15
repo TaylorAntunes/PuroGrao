@@ -1,0 +1,90 @@
+{
+  "category": "Farinhas",
+  "reviewed_on": "2026-10-15",
+  "products": [
+    {
+      "id": 19,
+      "name": "Farinha de beterraba",
+      "description": "Farinha de beterraba para dar cor e variar receitas de pães, biscoitos e sobremesas. Combine com outras farinhas conforme a receita.",
+      "sources": ["https://periodicos.uniarp.edu.br/index.php/ries/article/view/158", "https://repositorio.utfpr.edu.br/jspui/bitstream/1/13361/4/MD_COALM_2015_2_01.pdf"],
+      "review_note": "Pesquisas de aplicação culinária em sobremesas e pães. Sem transferir composição nutricional, cultivar, processo industrial ou resultados de saúde das amostras estudadas."
+    },
+    {
+      "id": 20,
+      "name": "Psyllium",
+      "description": "Psyllium para ajudar na textura e na estrutura de pães, bolos e massas. Incorpore aos ingredientes da receita e siga as orientações de preparo.",
+      "sources": ["https://loja.vitalin.com.br/produtos/psyllium-sem-gluten-vitalin-100g/", "https://jasminealimentos.com/pro/receita/quatro-receitas-integrais-com-produtos-jasmine-para-compartilhar-com-seu-paciente/"],
+      "review_note": "Somente uso culinário e função de textura. Sem alegar ação laxativa, saciedade, emagrecimento, teor nutricional ou certificação sem glúten; sem orientar ingestão do pó seco ou copiar doses de outra marca."
+    },
+    {
+      "id": 21,
+      "name": "Guaraná em pó",
+      "description": "Guaraná em pó para misturar a sucos e outras preparações, conforme as orientações do fornecedor. Contém cafeína naturalmente.",
+      "sources": ["https://www.unilife.com.br/product-page/guaran%C3%A1-em-p%C3%B3-150-g-unilife"],
+      "review_note": "Uso em preparações e presença natural de cafeína, sem estimar teor, doses, horários ou pureza. Não promete energia, desempenho esportivo ou emagrecimento."
+    },
+    {
+      "id": 22,
+      "name": "Maca peruana",
+      "description": "Maca peruana em pó para acrescentar a sucos, vitaminas e iogurtes. Uma opção prática para variar suas preparações. Siga as orientações do fornecedor.",
+      "sources": ["https://www.unilife.com.br/product-page/maca-peruana-premium-maca-peruana-em-p%C3%B3-unilife"],
+      "review_note": "Somente formas de apresentação culinária. Sem transferir indicação de suplemento, origem, dose, pureza ou ausência de glúten da versão Unilife. Sem promessas hormonais, sexuais ou de fertilidade."
+    },
+    {
+      "id": 23,
+      "name": "Farinha de aveia",
+      "description": "Farinha de aveia versátil para bolos, pães, panquecas, biscoitos e massas caseiras. Uma opção prática para variar as receitas do dia a dia.",
+      "sources": ["https://loja.vitalin.com.br/produtos/aveia-farinha-sem-gluten-vitalin-200g/"],
+      "review_note": "Referência somente para uso culinário. A certificação sem glúten e as alegações nutricionais da outra marca não foram transferidas para o produto da loja."
+    },
+    {
+      "id": 24,
+      "name": "Farinha de linhaça dourada",
+      "description": "Farinha de linhaça dourada para complementar pães, bolos, massas e vitaminas. Prática para combinar com outros ingredientes nas receitas do dia a dia.",
+      "sources": ["https://loja.vitalin.com.br/produtos/linhaca-dourada-farinha-sem-gluten-vitalin-150g/"],
+      "review_note": "Somente versatilidade culinária. Sem promessas intestinais ou alegações sobre teor de fibras, ômega-3, ausência de glúten, lactose ou alérgenos não confirmados no produto cadastrado."
+    },
+    {
+      "id": 25,
+      "name": "Farinha de linhaça marrom",
+      "description": "Farinha de linhaça marrom para acrescentar a pães, bolos, massas e vitaminas. Uma forma prática de variar os ingredientes das suas receitas.",
+      "sources": ["https://loja.vitalin.com.br/produtos/linhaca-marrom-farinha-sem-gluten-vitalin-150g/"],
+      "review_note": "Somente usos culinários, sem transferir informações nutricionais, certificações ou advertências de outra marca. Sem sugerir que a variedade marrom tem benefício superior ou inferior à dourada."
+    },
+    {
+      "id": 26,
+      "name": "Fibra de maçã",
+      "description": "Fibra de maçã para misturar a vitaminas, iogurtes e preparações com frutas. Acrescente conforme as orientações do fornecedor.",
+      "sources": ["https://www.magnavita.com.br/products/fibra-de-maca-100g"],
+      "review_note": "Fonte comercial de revenda, usada somente para apresentações culinárias comuns. Excluídas suas promessas de emagrecimento, redução de colesterol, doses e tabela nutricional. Sem afirmar solubilidade, parte da maçã ou teor de fibras do cadastro."
+    },
+    {
+      "id": 27,
+      "name": "Moringa em pó",
+      "description": "Moringa em pó. Sem indicação de consumo alimentar; consulte a loja para esclarecer a identificação e a finalidade deste produto.",
+      "sources": ["https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2026/anvisa-proibe-produtos-com-moringa-oleifera", "https://bibliotecadigital.anvisa.gov.br/jspui/handle/anvisa/2915", "Foto já cadastrada: embalagem ilustrativa Puro Grão identificada como moringa em pó, sem espécie ou ficha do fornecedor."],
+      "review_note": "Revisar identificação e finalidade com o fornecedor. A Anvisa informa que a segurança da Moringa oleifera como alimento não foi comprovada, e há proibição de alimentos com esse ingrediente. Sem sugestão de ingestão, mistura a receitas, benefício nutricional ou medicinal. Espécie não confirmada no cadastro; preços, categoria, estoque e visibilidade não foram alterados nesta revisão de textos."
+    },
+    {
+      "id": 28,
+      "name": "Gengibre em pó",
+      "description": "Gengibre em pó de aroma marcante e sabor picante. Use para temperar pratos salgados ou dar um toque especial a bolos, biscoitos e bebidas.",
+      "sources": ["https://www.mccormick.com/products/mccormick-ground-ginger-1-5-oz"],
+      "review_note": "Somente aroma, sabor e sugestões culinárias. Sem ação termogênica, anti-inflamatória, digestiva ou imunológica. A fórmula e as certificações McCormick não são atribuídas ao produto cadastrado."
+    },
+    {
+      "id": 29,
+      "name": "Farinha de semente de abóbora",
+      "description": "Farinha de semente de abóbora para complementar pães, biscoitos, omeletes e massas. Combine com outras farinhas conforme a receita.",
+      "sources": ["https://poscardio.ufrj.br/images/documentos/TESE_LARISSA_Almenara.pdf", "https://www.sesc-rs.com.br/wp-content/uploads/2017/10/LivretodeReceitasRioGrande2018.pdf"],
+      "review_note": "Somente aplicações culinárias documentadas nas receitas. Sem transferir resultados clínicos, dosagens, valor nutricional ou modo de processamento da farinha estudada."
+    },
+    {
+      "id": 49,
+      "name": "Farinha de uva",
+      "description": "Farinha de uva para complementar bolos, pães, biscoitos e iogurtes. Combine com outros ingredientes conforme a receita para variar sabor e textura.",
+      "sources": ["https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/1033295/1/Doc101.pdf", "https://www.infoteca.cnptia.embrapa.br/infoteca/bitstream/doc/1105247/1/Doc132residuosvitivinicolas.pdf"],
+      "review_note": "As publicações da Embrapa apoiam aplicações culinárias. Sem presumir variedade da uva, proporção de casca/semente, teor de resveratrol, ação antioxidante ou alegação de prevenção de doenças."
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "category": "Temperos",
+  "reviewed_on": "2026-10-15",
+  "products": [
+    {
+      "id": 37,
+      "name": "Edu Guedes",
+      "description": "Mistura de temperos para dar sabor a carnes, frango, legumes e molhos. Uma opção prática para combinar com os ingredientes das suas receitas.",
+      "sources": ["https://www.gruporochasaude.com/produto/tempero-edu-guedes-1896"],
+      "review_note": "Referência comercial para usos culinários comuns, consultada pelo resultado de pesquisa; a abertura integral não estava disponível. Sem copiar ingredientes, sal, alérgenos ou certificações de outra marca e sem sugerir vínculo com o apresentador."
+    },
+    {
+      "id": 38,
+      "name": "Ana Maria",
+      "description": "Tempero para realçar o sabor de carnes, arroz, feijão e legumes. Use durante o preparo ou na finalização, conforme a receita.",
+      "sources": ["https://graofortenaturais.com.br/produto/tempero-ana-maria-c-sal/"],
+      "review_note": "Fonte comercial da marca Grão Forte, usada apenas para aplicações culinárias. A composição varia conforme o fornecedor; não foi transferida a presença de sal da versão consultada, nem alegado vínculo com apresentadores ou chefs."
+    },
+    {
+      "id": 39,
+      "name": "Sal rosa do Himalaia fino",
+      "description": "Sal rosa de granulação fina para temperar carnes, peixes, aves e preparações do dia a dia. Use conforme a receita para ajustar o sabor.",
+      "sources": ["https://kitano.com.br/produtos/sal-rosa-do-himalaia"],
+      "review_note": "Somente uso culinário do sal. A granulação fina consta do nome cadastrado. Sem transferir iodação, origem certificada, pureza ou alegações de superioridade nutricional, redução de sódio ou benefícios de minerais."
+    },
+    {
+      "id": 40,
+      "name": "Páprica doce",
+      "description": "Páprica doce de sabor suave e cor avermelhada para temperar carnes, batatas, arroz e legumes. Também pode ser usada para finalizar molhos e pratos salgados.",
+      "sources": ["https://www.kitano.com.br/produtos/paprica-doce", "https://www.kitano.com.br/vamos-temperar/paprica-doce-conheca-os-diferentes-usos-do-tempero"],
+      "review_note": "Somente perfil sensorial e usos culinários. Sem alegar ausência absoluta de picância, origem, pureza ou certificações da versão Kitano. O nome doce não foi interpretado como indicação de açúcar ou uso exclusivo em sobremesas."
+    },
+    {
+      "id": 41,
+      "name": "Páprica defumada",
+      "description": "Páprica defumada de aroma marcante e sabor defumado. Use em carnes, frango, batatas, arroz e molhos para dar um toque especial às receitas.",
+      "sources": ["https://www.mccormick.com.au/food-service/products/herbs-spices/spices/mccormick-smoked-paprika", "https://shop.mccormickforchefs.com/products/mccormick-culinary-smoked-paprika-17-oz"],
+      "review_note": "Somente aroma, sabor e aplicações culinárias. Sem presumir tipo de madeira, técnica de defumação, presença de aromatizantes, origem ou grau exato de picância do produto cadastrado."
+    },
+    {
+      "id": 42,
+      "name": "Chimichurri sem pimenta",
+      "description": "Chimichurri sem pimenta para complementar carnes, frango, legumes e molhos. Misture conforme a receita ou use para finalizar os pratos.",
+      "sources": ["https://www.kitano.com.br/receitas/frango-grelhado-ao-chimichurri", "https://www.kitano.com.br/receitas/kitano-pimentoes-recheados"],
+      "review_note": "A identificação sem pimenta vem do nome cadastrado; as receitas apoiam apenas usos culinários do chimichurri. Não foram transferidos ingredientes, dosagens, tempos de hidratação, sal ou grau de ardência de outra versão."
+    },
+    {
+      "id": 43,
+      "name": "Chimichurri com pimenta",
+      "description": "Chimichurri com pimenta para dar um toque picante a carnes, frango, legumes e molhos. Use conforme a receita para temperar ou finalizar os pratos.",
+      "sources": ["https://www.kitano.com.br/receitas/frango-grelhado-ao-chimichurri", "https://www.kitano.com.br/receitas/kitano-pimentoes-recheados"],
+      "review_note": "A presença de pimenta vem do nome cadastrado. As receitas apoiam somente aplicações culinárias; não foi presumido tipo ou quantidade de pimenta, lista de ervas, sal ou grau exato de picância."
+    },
+    {
+      "id": 44,
+      "name": "Caldo de galinha",
+      "description": "Caldo de galinha para realçar o sabor de arroz, sopas, caldos e molhos. Incorpore durante o preparo, seguindo a receita e as orientações do fornecedor.",
+      "sources": ["https://www.receitasnestle.com.br/receitas/galinhada-maggi", "https://www.receitasnestle.com.br/receitas/polenta-cremosa-com-queijo"],
+      "review_note": "Referências somente para uso culinário. Não foram copiados a fórmula, as doses ou a apresentação em tabletes da marca MAGGI, nem declarados teor de sódio, presença de carne, glutamato ou alérgenos sem ficha do produto da loja."
+    },
+    {
+      "id": 45,
+      "name": "Alho frito",
+      "description": "Alho frito de aroma marcante para finalizar arroz, feijão, sopas e carnes. Acrescente ao final do preparo para realçar o sabor e a textura dos pratos.",
+      "sources": ["https://www.adko.com.br/blog/alho-frito/como-usar-alho-frito/"],
+      "review_note": "Referência do fabricante ADKO somente para usos culinários e finalização. Sem transferir formato granulado/laminado, tipo de óleo, presença de sal, composição ou certificações de suas versões."
+    },
+    {
+      "id": 46,
+      "name": "Colorau caseiro",
+      "description": "Colorau para dar cor avermelhada a arroz, frango, peixes, caldos e molhos. Uma opção prática para deixar as receitas com uma apresentação mais colorida.",
+      "sources": ["https://kitano.com.br/produtos/colorifico-kitano-1kg"],
+      "review_note": "Somente finalidade culinária de cor e sugestões de uso. Sem presumir lista de ingredientes, pureza do urucum ou modo artesanal de produção pelo termo caseiro. Fórmula, dados nutricionais e alérgenos Kitano não foram transferidos."
+    },
+    {
+      "id": 47,
+      "name": "Pimenta do reino",
+      "description": "Pimenta-do-reino de aroma marcante e sabor picante. Use para temperar carnes, peixes, aves, legumes e molhos, ajustando a quantidade conforme a receita.",
+      "sources": ["https://www.kitano.com.br/produtos/pimenta-reino-preta-grao", "https://kitano.com.br/produtos/pimenta-do-reino-preta-em-po"],
+      "review_note": "Somente perfil sensorial e usos comuns. Não foi presumido que o cadastro corresponde à versão em grãos ou em pó, nem transferidas origem, processamento ou alegações de saúde."
+    },
+    {
+      "id": 48,
+      "name": "Açafrão da terra",
+      "description": "Açafrão-da-terra, também conhecido como cúrcuma, para dar cor dourada e sabor característico a arroz, ovos, legumes, sopas e molhos.",
+      "sources": ["https://kitano.com.br/produtos/acafrao-da-terra-curcuma"],
+      "review_note": "Identificado como cúrcuma pelo nome açafrão-da-terra, sem confundir com açafrão verdadeiro. Somente uso culinário; sem promessas anti-inflamatórias, imunológicas, detox ou de emagrecimento e sem estimar teor de curcumina."
+    },
+    {
+      "id": 50,
+      "name": "Lemon Pepper",
+      "description": "Lemon Pepper de perfil cítrico e levemente picante para temperar peixes, frango, saladas e frituras. Combine com os ingredientes conforme a receita.",
+      "sources": ["https://www.kitano.com.br/produtos/lemon-pepper"],
+      "review_note": "Somente sabor e aplicações culinárias. Sem copiar a fórmula Kitano ou afirmar presença de limão em pó, ervas, açúcar, sal, corantes, conservantes ou alérgenos do produto a granel."
+    }
+  ]
+}

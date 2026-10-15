@@ -1,0 +1,68 @@
+/* Campaign hero: live copy and actions over a photographic background. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  min-height: clamp(320px, 28vw, 390px);
+  padding: var(--space-6) var(--space-7);
+  margin-block: var(--space-5) var(--space-6);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--hero-background);
+}
+.hero-copy { position: relative; z-index: 2; width: 43%; max-width: 490px; padding-bottom: var(--space-7); }
+.hero .eyebrow { color: var(--hero-muted); font-size: 9px; letter-spacing: .6px; line-height: 1.6; }
+.hero h1 { margin: var(--space-2) 0 var(--space-3); font-size: clamp(40px, 4.3vw, 62px); line-height: .98; letter-spacing: -1.3px; color: var(--hero-title); }
+.hero-copy > p { max-width: 360px; margin-bottom: var(--space-4); color: var(--hero-text); font-size: 14px; line-height: 1.5; }
+.hero-actions { position: absolute; z-index: 2; bottom: var(--space-5); left: var(--space-7); display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.hero-actions .btn { min-height: 44px; padding: 10px 16px; font-size: 12px; gap: var(--space-2); background: var(--hero-action); color: var(--hero-action-text); }
+.hero-actions .btn:hover { background: var(--hero-action-hover); }
+.hero-actions .btn-secondary { background: transparent; color: var(--hero-title); border-color: var(--hero-button-border); }
+.hero-actions .btn-secondary:hover { background: var(--hero-button-hover); color: var(--hero-title); }
+.hero[data-current-image="1"] .hero-actions .btn-secondary { background: var(--hero-background); color: var(--hero-title); }
+.hero-visual { position: absolute; inset: 0; z-index: 0; }
+.hero-image-frame { position: absolute; inset: 0; opacity: 0; transition: opacity var(--duration) ease; }
+.hero-image-frame[data-active=true] { opacity: 1; }
+.hero-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.hero-photo-promotion { object-fit: contain; object-position: center; }
+.hero-photo-dark { display: none; }
+:root[data-theme=dark] .hero-photo-light { display: none; }
+:root[data-theme=dark] .hero-photo-dark { display: block; }
+.hero-visual::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, var(--hero-background) 0%, var(--hero-scrim) 29%, transparent 57%); pointer-events: none; }
+.hero[data-current-image="1"] .hero-visual::after { opacity: 0; }
+.hero-signature { position: absolute; z-index: 1; top: 21%; left: 41%; display: grid; justify-items: center; gap: var(--space-2); color: var(--hero-signature); font: italic 23px/1.15 var(--font-title); text-align: center; transform: rotate(-9deg); }
+.hero-signature .icon { width: 25px; height: 25px; stroke-width: 1.2; }
+@media (min-width: 768px) {
+  .hero[data-current-image="1"] .hero-actions { left: 6%; bottom: 18%; }
+  .hero[data-current-image="1"] .hero-copy,
+  .hero[data-current-image="1"] .hero-signature { visibility: hidden; }
+}
+@media (max-width: 1199px) {
+  .hero-signature { display: none; }
+}
+@media (max-width: 1023px) {
+  .hero { padding-inline: var(--space-6); }
+  .hero-copy { width: 46%; }
+  .hero-actions { left: var(--space-6); }
+}
+@media (max-width: 767px) {
+  .hero { margin-block: var(--space-4) var(--space-5); flex-direction: column; align-items: stretch; padding: 0; min-height: 0; aspect-ratio: auto; }
+  .hero-copy { width: 100%; max-width: none; padding: 28px var(--space-5) var(--space-4); }
+  .hero .eyebrow { max-width: 360px; font-size: 9px; }
+  .hero h1 { font-size: clamp(42px, 7vw, 54px); line-height: 1.02; }
+  .hero-copy > p { max-width: 420px; }
+  .hero-actions { position: relative; bottom: auto; left: auto; padding-inline: var(--space-5); margin-bottom: var(--space-4); }
+  .hero[data-current-image="1"] .hero-actions { order: 1; }
+  .hero-visual { position: relative; inset: auto; width: 100%; height: auto; aspect-ratio: 2 / 1; }
+  .hero-photo { object-position: right center; }
+  .hero-photo-promotion { width: 100%; object-position: center; }
+  .hero-visual::after { background: linear-gradient(180deg, var(--hero-background), transparent 28%); }
+  .hero-signature { display: none; }
+}
+@media (max-width: 379px) {
+  .hero-copy { padding-inline: var(--space-4); }
+  .hero-actions { gap: var(--space-2); padding-inline: var(--space-4); }
+  .hero-actions .btn { flex: 1 1 auto; }
+}

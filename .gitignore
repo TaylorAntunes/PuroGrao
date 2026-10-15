@@ -1,0 +1,6 @@
+node_modules
+*.db*
+.env
+artifacts/
+.env.*
+!.env.example

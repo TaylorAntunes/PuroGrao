@@ -1,0 +1,76 @@
+{
+  "category": "Chás",
+  "reviewed_on": "2026-10-15",
+  "products": [
+    {
+      "id": 8,
+      "name": "Chá de hibisco",
+      "description": "Chá de hibisco com sabor levemente ácido e cor marcante. Prepare uma infusão e experimente com limão para dar um toque cítrico à sua bebida.",
+      "sources": ["https://twinings.co.uk/collections/hibiscus-tea"],
+      "review_note": "Referência para o perfil sensorial do ingrediente, sem transferir marca, composição de blends, dose ou origem. Retirada a referência antiga a 100 g, pois o produto é vendido por peso escolhido pelo cliente."
+    },
+    {
+      "id": 11,
+      "name": "Louro folha turco",
+      "description": "Louro de aroma marcante para dar mais sabor a feijão, caldos, molhos e ensopados. Acrescente durante o cozimento e retire as folhas antes de servir.",
+      "sources": ["https://www.mccormick.com/products/mccormick-bay-leaves-0-12-oz"],
+      "review_note": "Somente usos culinários e aroma. Nome e categoria preservados; não foi acrescentada garantia de origem turca."
+    },
+    {
+      "id": 12,
+      "name": "Erva doce premium",
+      "description": "Erva-doce com aroma característico e sabor suave e adocicado. Prepare por infusão em água quente e aproveite uma bebida aromática na sua pausa.",
+      "sources": ["https://www.baraoshop.com/chas/chas-de-infusao/cha-infusao-de-erva-doce", "https://www.oetker.com.br/produtos/p/cha-de-erva-doce-10g"],
+      "review_note": "O nome popular pode indicar espécies diferentes. O texto não escolhe espécie, parte vegetal ou dose, nem promete efeitos digestivos."
+    },
+    {
+      "id": 13,
+      "name": "Espinheira santa",
+      "description": "Espinheira-santa a granel para comprar na quantidade desejada. Confira as orientações de preparo e uso do fornecedor.",
+      "sources": ["https://www.gov.br/saude/pt-br/composicao/sectics/plantas-medicinais-e-fitoterapicos/plantas-medicinais-e-fitoterapicos-no-sus/tabela-renisus", "https://www.gov.br/anvisa/pt-br/centraisdeconteudo/publicacoes/medicamentos/publicacoes-sobre-medicamentos/orientacoes-sobre-o-uso-de-fitoterapicos-e-plantas-medicinais.pdf"],
+      "review_note": "Sem ficha técnica que confirme espécie, indicação e enquadramento do produto. Texto limitado ao nome e à venda a granel; sem recomendar infusão, dose ou tratamento para gastrite/refluxo. A fonte contextualiza a cautela e não comprova o produto cadastrado."
+    },
+    {
+      "id": 14,
+      "name": "Cavalinha",
+      "description": "Cavalinha a granel para comprar na quantidade desejada. Confira as orientações de preparo e uso do fornecedor.",
+      "sources": ["https://www.gov.br/saude/pt-br/composicao/sectics/plantas-medicinais-e-fitoterapicos/plantas-medicinais-e-fitoterapicos-no-sus/tabela-renisus", "https://www.gov.br/anvisa/pt-br/centraisdeconteudo/publicacoes/medicamentos/publicacoes-sobre-medicamentos/orientacoes-sobre-o-uso-de-fitoterapicos-e-plantas-medicinais.pdf"],
+      "review_note": "Sem ficha técnica que confirme espécie, indicação e enquadramento do produto. Texto limitado ao nome e à venda a granel; sem recomendar infusão, doses, efeito diurético, detox ou emagrecimento. A fonte contextualiza a cautela e não comprova o produto cadastrado."
+    },
+    {
+      "id": 15,
+      "name": "Camomila flor",
+      "description": "Camomila de aroma floral e sabor suave, com leve toque adocicado. Prepare por infusão e aprecie quente ou deixe esfriar para servir com gelo.",
+      "sources": ["https://twinings.co.uk/products/pure-camomile-80-tea-bags"],
+      "review_note": "Referência sensorial e de apresentação da bebida; sem transferir especificações da embalagem Twinings e sem alegar efeitos sobre sono ou ansiedade."
+    },
+    {
+      "id": 16,
+      "name": "Boldo",
+      "description": "Boldo a granel, de sabor amargo característico. Escolha a quantidade desejada e siga as orientações de preparo e uso do fornecedor.",
+      "sources": ["https://hortodidatico.ufsc.br/boldo-pequeno/"],
+      "review_note": "As fontes registram a ambiguidade do nome popular e o amargor. Sem espécie confirmada, o texto não indica infusão, dose, frequência, efeitos no fígado ou na digestão."
+    },
+    {
+      "id": 17,
+      "name": "Alecrim",
+      "description": "Alecrim de aroma intenso e sabor herbal marcante. Use para realçar carnes, batatas e legumes assados ou dar um toque especial a pães e molhos.",
+      "sources": ["https://www.mccormick.com/products/mccormick-r-whole-rosemary-leaves-0-62-oz"],
+      "review_note": "Somente perfil sensorial e aplicações culinárias. Não confundido com os óleos de alecrim de outra categoria."
+    },
+    {
+      "id": 18,
+      "name": "Orégano",
+      "description": "Orégano de aroma marcante e sabor herbal levemente picante. Ideal para temperar pizzas, molhos de tomate, saladas, legumes e marinadas.",
+      "sources": ["https://www.mccormick.com/products/mccormick-culinary-mediterranean-style-oregano-leaves-5-oz"],
+      "review_note": "Somente perfil sensorial e aplicações culinárias; sem transferir origem ou especificações da versão McCormick. Categoria original preservada."
+    },
+    {
+      "id": 141,
+      "name": "Chá  de  capim cidreira",
+      "description": "Chá de capim-cidreira em sachês, de sabor suave. Uma opção prática para preparar uma bebida quente e fazer uma pausa. Siga as orientações da embalagem.",
+      "sources": ["Foto já cadastrada: Naturais HappyLife, chá de capim-cidreira em sachês.", "https://www.junco.com.br/chas-e-ervas", "https://www.oetker.com.br/produtos/p/cha-de-capim-cidreira-15g"],
+      "review_note": "A foto e o catálogo HappyLife/Junco apoiam a apresentação em sachês; Oetker é apenas referência para suavidade, não para composição ou preparo desta marca. Venda por unidade preservada; sem copiar tempo de infusão, peso, quantidade de sachês ou alegações de relaxamento/sono de outras marcas."
+    }
+  ]
+}

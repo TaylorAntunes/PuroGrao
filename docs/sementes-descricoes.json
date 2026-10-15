@@ -1,0 +1,41 @@
+{
+  "category": "Sementes",
+  "reviewed_on": "2026-10-15",
+  "products": [
+    {
+      "id": 3,
+      "name": "Linhaça dourada",
+      "description": "Linhaça dourada em sementes para acrescentar textura a pães e massas. Uma opção versátil para combinar com os ingredientes das suas receitas.",
+      "sources": ["https://loja.vitalin.com.br/produtos/linhaca-dourada-graos-sem-gluten-vitalin-120g/"],
+      "review_note": "Somente apresentação em sementes e usos culinários. Não foram transferidas certificações, informações nutricionais ou advertências de outra marca. A referência antiga a 250 g foi retirada porque a venda é por peso escolhido pelo cliente."
+    },
+    {
+      "id": 10,
+      "name": "Semente de Chia",
+      "description": "Sementes de chia para variar pães, bolos e pudins. Em receitas com líquidos, a hidratação ajuda a formar uma textura cremosa. Prepare conforme a receita.",
+      "sources": ["https://loja.vitalin.com.br/produtos/chia-graos-sem-gluten-vitalin-120g/", "https://www.receitasnestle.com.br/receitas/pudim-de-chia-com-uva-passa"],
+      "review_note": "Somente usos em receitas e textura após hidratação. Sem orientar ingestão do pó ou sementes secas isoladas, nem copiar tempos, proporções, doses ou alegações nutricionais de outra marca. Não promete saciedade, emagrecimento ou ação intestinal."
+    },
+    {
+      "id": 34,
+      "name": "Linhaça marrom",
+      "description": "Linhaça marrom em sementes para complementar pães, massas e outras preparações. Use conforme a receita para acrescentar textura e variar os ingredientes.",
+      "sources": ["https://loja.vitalin.com.br/produtos/linhaca-marrom-graos-sem-gluten-vitalin-120g/"],
+      "review_note": "Somente usos culinários e textura; sem comparar benefícios nutricionais das variedades de linhaça. A ficha de referência tem uma inconsistência na linha de ingredientes, que menciona dourada; essa informação não foi aproveitada, nem foram transferidas fórmula, certificações ou advertências."
+    },
+    {
+      "id": 35,
+      "name": "Semente de girassol",
+      "description": "Sementes de girassol para complementar pães e massas, acrescentando sabor e textura. Prepare conforme a receita e as orientações do fornecedor.",
+      "sources": ["https://www.receitasnestle.com.br/receitas/receita-pao-aveia-nestle-iogurte-nestle-sem-farinha"],
+      "review_note": "Aplicação culinária documentada em pão com sementes. A foto da loja foi inspecionada, mas é ilustrativa e não confirma processamento. O texto não declara sementes cruas, torradas, salgadas, prontas para consumo ou sem casca, nem atribui dados nutricionais."
+    },
+    {
+      "id": 36,
+      "name": "Semente de abóbora",
+      "description": "Sementes de abóbora para dar sabor e textura a pães e outras receitas salgadas. Uma opção versátil para variar suas preparações, conforme o modo de preparo.",
+      "sources": ["https://www.receitasnestle.com.br/receitas/receita-pao-aveia-nestle-iogurte-nestle-sem-farinha", "https://www.receitasnestle.com.br/receitas/receita-pao-minuto-airfryer-brocolis-aveia"],
+      "review_note": "Somente sabor, textura e aplicação culinária documentada em pães. Não confundida com a farinha ou o óleo de abóbora de outras categorias. Sem presumir processamento ou prometer ação medicinal, intestinal ou benefício à próstata."
+    }
+  ]
+}

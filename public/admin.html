@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin – Puro Grão</title>
+    <link rel="icon" type="image/png" sizes="1080x1080" href="/images/logo-vertical.png?v=20261008-favicon">
+    <script src="/js/theme.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/design-system.css?v=20261007-redesign"><link rel="stylesheet" href="/css/admin.css?v=20261014-product-order"><link rel="stylesheet" href="/css/theme.css?v=20261007-redesign">
+    <link rel="stylesheet" href="/css/admin-sales.css?v=20261011-sales-search">
+    <link rel="stylesheet" href="/css/admin-sales-history.css?v=20261011-sales-history">
+  </head>
+  <body>
+    <main>
+      <div class="admin-theme-bar">
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Ativar modo escuro" aria-pressed="false"><svg class="theme-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20.5 13a8.5 8.5 0 0 1-9.5-9.5A8.5 8.5 0 1 0 20.5 13Z"/></svg><svg class="theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg><span data-theme-label>Modo escuro</span></button>
+      </div>
+      <form id="login">
+        <img class="admin-logo" src="/images/logo-horizontal.png" alt="Puro Grão">
+        <h1>
+          Painel da loja
+        </h1>
+        <p>Cuide da sua loja, de um jeito simples.</p><label for="pw">Senha do painel<input id="pw" type="password" placeholder="Digite sua senha" autocomplete="current-password" required></label><button class="p">Entrar</button>
+        <div class="err" id="lerr"></div>
+      </form>
+      <div id="app" hidden>
+        <aside class="admin-sidebar" aria-label="Navegação administrativa"><a class="brand-logo" href="/" aria-label="Abrir loja Puro Grão"><img src="/images/logo-horizontal.png" alt="Puro Grão" width="1080" height="1080"></a><div><p class="sidebar-caption">GESTÃO DA LOJA</p><div class="tabs" role="group" aria-label="Seções do painel">
+          <button data-t="db" aria-pressed="true"><span data-icon="chart"></span>Visão geral</button><button data-t="pr" aria-pressed="false"><span data-icon="leaf"></span>Produtos</button><button data-t="kt" aria-pressed="false"><span data-icon="package"></span>Kits</button><button data-t="or" aria-pressed="false"><span data-icon="bag"></span>Pedidos</button><button data-t="bn" aria-pressed="false"><span data-icon="banner"></span>Banner da Home</button>
+          <button data-t="st" aria-pressed="false"><span data-icon="package"></span>Estoque</button>
+          <button data-t="ps" aria-pressed="false"><span data-icon="bag"></span>Vendas presenciais</button>
+          <button data-t="sh" aria-pressed="false"><span data-icon="trending"></span>Vendas</button>
+        </div></div><p class="sidebar-note">Naturalmente, do seu jeito.<br>Produtos, pedidos e cuidado em cada escolha.</p></aside>
+        <div class="admin-content">
+        <div class="admin-header">
+          <h1>
+            Painel da loja
+          </h1>
+          <div class="admin-session"><a href="/">Ver loja ↗</a><button type="button" id="out">Sair</button></div>
+        </div>
+        
+        <div id="aerr" class="err" role="alert"></div>
+        <section id="db" aria-labelledby="dashboard-title">
+          <div class="dashboard-heading">
+            <div>
+              <h2 id="dashboard-title">
+                Visão geral
+              </h2>
+              <p class="form-help">
+                Vendas e ticket consideram pedidos pagos ou entregues, pela data do pedido, no horário de São Paulo.
+              </p>
+            </div>
+            <button type="button" id="refresh-dashboard">Atualizar painel</button>
+          </div>
+          <div class="dashboard-metrics">
+            <article><span class="metric-icon" data-icon="chart"></span><span>Vendas do dia</span><strong id="sales-day">…</strong><small id="sales-day-orders"></small></article>
+            <article><span class="metric-icon" data-icon="trending"></span><span>Vendas do mês</span><strong id="sales-month">…</strong><small id="sales-month-orders"></small></article>
+            <article><span class="metric-icon" data-icon="bag"></span><span>Ticket médio do mês</span><strong id="average-ticket">…</strong><small>Total vendido ÷ pedidos pagos ou entregues</small></article>
+            <article><span class="metric-icon" data-icon="clock"></span><span>Pedidos hoje</span><strong id="orders-day">…</strong><small id="orders-day-detail"></small></article>
+            <article><span class="metric-icon" data-icon="package"></span><span>Pedidos no mês</span><strong id="orders-month">…</strong><small id="orders-month-detail"></small></article>
+            <article><span class="metric-icon" data-icon="leaf"></span><span>Produtos com estoque baixo</span><strong id="stock-count">…</strong><small id="stock-count-detail"></small></article>
+            <article><span class="metric-icon" data-icon="trending"></span><span>Lucro bruto estimado hoje</span><strong id="profit-day">…</strong><small id="profit-day-detail"></small></article>
+            <article><span class="metric-icon" data-icon="trending"></span><span>Lucro bruto estimado no mês</span><strong id="profit-month">…</strong><small id="profit-month-detail"></small></article>
+            <article><span class="metric-icon" data-icon="chart"></span><span>Margem bruta do mês</span><strong id="profit-margin">…</strong><small>Sobre vendas com custo completo; antes de despesas e frete.</small></article>
+          </div>
+          <p id="dashboard-updated" class="form-help" role="status">
+          </p>
+          <section class="dashboard-sellers" aria-labelledby="dashboard-sellers-title">
+            <h3 id="dashboard-sellers-title">
+              Mais vendidos no mês
+            </h3>
+            <p class="form-help">
+              Por quantidade de pedidos pagos ou entregues. As porções desempatam.
+            </p>
+            <ol id="dashboard-sellers">
+            </ol>
+            <p id="dashboard-sellers-empty" class="form-help" hidden>
+              Ainda não há vendas pagas ou entregues neste mês.
+            </p>
+          </section>
+          <section class="low-stock-panel" aria-labelledby="low-stock-title">
+            <div class="low-stock-heading">
+              <div>
+                <h2 id="low-stock-title">
+                  Estoque baixo
+                </h2>
+                <p>
+                  Produtos com até 3 kg ou 3 unidades em estoque, incluindo os esgotados e os ocultos.
+                </p>
+              </div>
+              <button type="button" id="refresh-stock">Atualizar estoque</button>
+            </div>
+            <p id="low-stock-summary" class="low-stock-summary" role="status">
+              Carregando estoque…
+            </p>
+            <figure id="low-stock-chart" hidden>
+              <figcaption>
+                Cada barra mostra a proporção do estoque até 3 kg ou 3 unidades, conforme a forma de venda.
+              </figcaption>
+              <ol id="low-stock-bars">
+              </ol>
+            </figure>
+            <p id="low-stock-empty" class="low-stock-empty" hidden>
+              Nenhum produto com estoque baixo. Todos estão acima de 3 kg ou 3 unidades.
+            </p>
+          </section>
+        </section>
+        <section id="pr" hidden aria-labelledby="products-admin-title"><h2 id="products-admin-title">Produtos</h2>
+          <p class="form-help">
+            Escolha como vender cada produto: por peso ou por unidade. No peso, informe gramas (1 kg = 1.000 g). Na unidade, informe o preço de uma peça e a quantidade disponível.
+          </p>
+          <form id="pf">
+            <input type="hidden" id="pid">
+            <h3 class="form-section-title">Dados do produto</h3>
+            <label>
+              Nome<input id="pname" required maxlength="80">
+            </label>
+            <label>
+              Forma de venda<select id="psale-unit"><option value="weight">Por peso (gramas)</option><option value="unit">Por unidade (quantidade)</option></select>
+            </label>
+            <h3 class="form-section-title">Preço e estoque</h3>
+            <label>
+              <span id="pprice-label">Preço de referência (R$)</span><input id="pprice" inputmode="decimal" required>
+            </label>
+            <label id="pweight-label">
+              Peso desse preço (g)<input id="pweight" type="number" min="1" max="100000" step="1" value="1000" required>
+            </label>
+            <label>
+              <span id="pstock-label">Estoque disponível (g)</span><input id="pstock" type="number" min="0" step="1" value="0" required>
+            </label>
+            <label><span id="pcost-label">Custo por kg (R$)</span><input id="pcost" inputmode="decimal" placeholder="Ex.: 28,00" aria-describedby="pcost-help"></label>
+            <p id="pcost-help" class="form-help full-width">Opcional. Informe o custo de 1 kg ou de uma unidade, conforme a forma de venda. Vazio significa custo não informado.</p>
+            <div id="product-profit-preview" class="profit-preview full-width" role="status"></div>
+            <p id="psale-help" class="form-help full-width"></p>
+            <h3 class="form-section-title">Apresentação na loja</h3>
+            <label>
+              Categoria<select id="pcat"><option value="">Sem categoria</option></select>
+            </label>
+            <label>
+              Cor da embalagem<input id="pcolor" type="color" value="#b98a4b">
+            </label>
+            <label id="pcat-new-label" class="full-width" hidden>
+              Nova categoria<input id="pcat-new" maxlength="30" placeholder="Digite o nome da nova categoria" disabled>
+            </label>
+            <label class="full-width">
+              Descrição<input id="pdesc">
+            </label>
+            <div class="product-photo-field">
+              <label for="pimage">
+                Foto do produto
+              </label>
+              <input id="pimage" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="pimage-help">
+              <small id="pimage-help">Opcional · PNG, JPEG ou WebP · até 5 MB. Sem foto, a loja usa a ilustração padrão.</small>
+              <div class="photo-editor" id="pimage-box" hidden>
+                <div class="photo-frame">
+                  <img id="pimage-preview" alt="Prévia do enquadramento da foto do produto">
+                </div>
+                <div class="photo-position-controls">
+                  <label>
+                    Enquadramento<select id="pimage-fit"><option value="cover">Preencher o espaço</option><option value="contain">Mostrar a imagem inteira</option></select>
+                  </label>
+                  <label>
+                    Posição horizontal<input id="pimage-x" type="range" min="0" max="100" step="1" value="50">
+                  </label>
+                  <label>
+                    Posição vertical<input id="pimage-y" type="range" min="0" max="100" step="1" value="50">
+                  </label>
+                  <div class="photo-actions">
+                    <button type="button" id="pimage-center">Centralizar imagem</button><button type="button" id="pimage-remove">Remover foto</button>
+                  </div>
+                  <small>Ajuste a posição olhando a prévia. Para evitar cortes, escolha “Mostrar a imagem inteira”. O enquadramento será salvo com o produto.</small>
+                </div>
+              </div>
+              <div id="pimage-error" class="err" role="alert"></div>
+            </div>
+            <label>
+              <span><input id="pactive" type="checkbox" checked> Visível na loja</span>
+            </label>
+            <fieldset class="product-highlights">
+              <legend>Promoções e destaques da Home</legend>
+              <label>
+                <span><input id="ppromo" type="checkbox"> Aplicar 20% de desconto na Terça do Granel</span>
+              </label>
+              <small>O produto permanece na sua categoria. O preço com desconto aparece somente às terças-feiras, das 0h às 23h59, no horário de São Paulo.</small>
+              <label>
+                <span><input id="pnew" type="checkbox"> Destacar em Novidades</span>
+              </label>
+              <small>Mais vendidos aparece automaticamente a partir dos pedidos pagos e entregues.</small>
+            </fieldset>
+            <div class="form-actions">
+              <button class="p" id="psave">Salvar</button><button type="button" id="rst">Limpar</button>
+            </div>
+          </form>
+          <h3>Produtos cadastrados</h3>
+          <div class="product-filters" role="search" aria-label="Filtrar produtos cadastrados">
+            <label class="product-filter-search">Buscar produto<input id="product-filter-search" type="search" placeholder="Digite o nome do produto"></label>
+            <label>Categoria<select id="product-filter-category" aria-describedby="product-filter-category-help"><option value="">Todas as categorias</option><option value="Sem categoria">Sem categoria</option></select></label>
+            <label>Forma de venda<select id="product-filter-sale"><option value="">Todas as formas</option><option value="weight">Por peso</option><option value="unit">Por unidade</option></select></label>
+            <label>Estoque<select id="product-filter-stock"><option value="">Todos os estoques</option><option value="available">Disponível</option><option value="low">Estoque baixo (até 3 kg / 3 un.)</option><option value="empty">Esgotado</option></select></label>
+            <label>Visibilidade<select id="product-filter-active"><option value="">Todos os produtos</option><option value="visible">Visíveis na loja</option><option value="hidden">Ocultos na loja</option></select></label>
+            <button type="button" id="product-filters-clear" disabled>Limpar filtros</button>
+          </div>
+          <p id="product-filter-count" class="form-help" role="status" aria-live="polite"></p>
+          <p id="product-filter-category-help" class="form-help" hidden>Sem categoria reúne os produtos com a categoria em branco ou cadastrados como Geral. Use Editar para definir a categoria de cada produto.</p>
+          <p id="product-filter-empty" class="form-help" hidden></p>
+          <p id="product-order-help" class="form-help">Use as setas ou informe uma posição e clique em Mover para escolher a ordem do catálogo. As posições incluem produtos ocultos; com filtros, as setas movem entre os produtos exibidos.</p>
+          <p id="product-order-feedback" class="product-order-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
+          <div class="table-wrap" id="product-list-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Produto</th><th>Ordem na loja</th><th>Categoria</th><th>Preço / medida</th><th>Custo e margem</th><th>Estoque</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="plist">
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section id="sh" hidden aria-labelledby="sales-history-title">
+          <h2 id="sales-history-title">Vendas</h2>
+          <div id="sales-history-workspace"></div>
+        </section>
+        <section id="ps" hidden aria-labelledby="sales-title">
+          <h2 id="sales-title">Vendas presenciais</h2>
+          <p class="form-help">Registre as vendas realizadas na loja. O estoque e o faturamento são atualizados quando você confirma uma venda paga.</p>
+          <div id="sales-workspace"></div>
+        </section>
+        <section id="st" hidden aria-labelledby="inventory-title">
+          <div class="admin-panel-heading"><div><h2 id="inventory-title">Movimentações de estoque</h2><p class="form-help">Compras, vendas, cancelamentos e ajustes, com saldo após cada movimentação. O saldo inicial marca o início do histórico.</p></div><button type="button" id="refresh-stock-history">Atualizar histórico</button></div>
+          <form id="stock-movement-form">
+            <h3 class="full-width">Registrar entrada ou ajuste</h3>
+            <label>Produto<select id="movement-product" required><option value="">Escolha um produto</option></select></label>
+            <label>Motivo<select id="movement-reason"><option value="purchase">Compra / reposição</option><option value="manual_adjustment">Ajuste manual</option></select></label>
+            <label>Movimentação<select id="movement-direction"><option value="in">Entrada (+)</option><option value="out">Saída (−)</option></select></label>
+            <label><span id="movement-quantity-label">Quantidade (g)</span><input id="movement-quantity" type="number" min="1" step="1" required></label>
+            <label class="full-width">Descrição / motivo<textarea id="movement-note" rows="2" maxlength="300" required placeholder="Ex.: compra com fornecedor, perda, conferência de estoque"></textarea></label>
+            <p id="movement-current" class="form-help full-width" role="status">Escolha um produto para consultar o saldo.</p>
+            <div class="form-actions"><button class="p" id="movement-submit">Registrar movimentação</button></div>
+            <p id="movement-feedback" class="full-width" role="status"></p>
+          </form>
+          <div class="inventory-filters"><label>Filtrar produto<select id="stock-history-product"><option value="">Todos os produtos</option></select></label><label>Tipo<select id="stock-history-reason"><option value="">Todas as movimentações</option><option value="initial">Saldo inicial</option><option value="purchase">Compra / reposição</option><option value="manual_adjustment">Ajuste manual</option><option value="product_edit">Ajuste no cadastro</option><option value="sale">Venda</option><option value="cancellation">Cancelamento</option><option value="reopening">Reabertura de pedido</option></select></label></div>
+          <p id="stock-history-empty" class="form-help" hidden>Nenhuma movimentação para estes filtros.</p>
+          <div class="table-wrap" id="stock-history-table"><table><thead><tr><th>Data</th><th>Produto</th><th>Movimentação</th><th>Saldo após</th><th>Motivo / pedido</th></tr></thead><tbody id="stock-history-rows"></tbody></table></div>
+          <div class="inventory-pagination"><button type="button" id="stock-history-prev" disabled>Anterior</button><span id="stock-history-page" role="status"></span><button type="button" id="stock-history-next" disabled>Próxima</button></div>
+        </section>
+        <section id="kt" hidden aria-labelledby="kits-admin-title">
+          <h2 id="kits-admin-title">
+            Kits prontos
+          </h2>
+          <p class="form-help">
+            Escolha produtos, pesos e quantidades conforme a forma de venda. O preço é a soma dos itens e o estoque acompanha cada produto. Se mudar a forma de venda de um produto, revise e salve seus kits para publicá-los novamente.
+          </p>
+          <div class="kit-templates" id="kit-templates">
+            <button type="button">Kit Temperos</button><button type="button">Kit Chás</button><button type="button">Kit Café da Manhã</button><button type="button">Kit Fibras</button><button type="button">Kit Sementes</button>
+          </div>
+          <form id="kit-form">
+            <input id="kit-id" type="hidden">
+            <label>
+              Nome do kit<input id="kit-name" required maxlength="80">
+            </label>
+            <label>
+              Descrição<textarea id="kit-description" maxlength="300" rows="2" placeholder="Conte quais sabores e ingredientes fazem parte do kit."></textarea>
+            </label>
+            <div id="kit-components">
+            </div>
+            <button type="button" id="kit-add-component">Adicionar produto ao kit</button>
+            <label>
+              <span><input type="checkbox" id="kit-active" checked> Visível na loja</span>
+            </label>
+            <p id="kit-price-preview" class="form-help">
+            </p>
+            <div>
+              <button class="p" id="kit-save">Salvar kit</button> <button type="button" id="kit-reset">Limpar</button>
+            </div>
+          </form>
+          <div id="kit-list">
+          </div>
+        </section>
+        <section id="or" hidden aria-labelledby="orders-admin-title"><h2 id="orders-admin-title">Pedidos</h2><p class="form-help">Pedidos novos aguardam confirmação. O estoque é baixado ao marcar Confirmado, Pago ou Entregue. Cancelar devolve somente o estoque que já foi baixado.</p>
+          <div id="olist">
+          </div>
+        </section>
+        <section id="bn" hidden aria-labelledby="banner-admin-title">
+          <h2 id="banner-admin-title">
+            Banner da página inicial
+          </h2>
+          <p class="form-help">
+            Troque o destaque da Home e salve para publicar. O banner é um aviso; os descontos continuam sendo definidos no cadastro dos produtos.
+          </p>
+          <form id="banner-form">
+            <label>
+              <span><input id="banner-active" type="checkbox"> Mostrar banner na Home</span>
+            </label>
+            <label>
+              Título<input id="banner-title" maxlength="100" placeholder="Uma seleção especial para sua rotina">
+            </label>
+            <label>
+              Descrição<textarea id="banner-description" maxlength="300" rows="3" placeholder="Conte a novidade ou promoção da loja."></textarea>
+            </label>
+            <label>
+              Texto do botão (opcional)<input id="banner-link-label" maxlength="40" placeholder="Ver ofertas">
+            </label>
+            <label>
+              Link do botão (opcional)<input id="banner-link-url" maxlength="500" placeholder="/ofertas ou #produtos">
+            </label>
+            <small>Preencha o texto e o link juntos. Pode usar /ofertas, #produtos ou um endereço completo http/https.</small>
+            <div>
+              <button class="p" id="banner-save">Salvar banner</button>
+            </div>
+            <p id="banner-status" role="status">
+            </p>
+          </form>
+          <h3>
+            Prévia do banner
+          </h3>
+          <section class="banner-preview" id="banner-preview" aria-label="Prévia do banner">
+            <div>
+              <h3 id="banner-preview-title">
+              </h3>
+              <p id="banner-preview-description">
+              </p>
+            </div>
+            <span id="banner-preview-link" hidden></span>
+          </section>
+          <p id="banner-preview-note" class="form-help">
+          </p>
+        </section>
+        </div>
+      </div>
+    </main>
+    <script src="/js/icons.js?v=20261007-redesign" defer></script>
+    <script src="/shared/pricing.js?v=20261007-redesign" defer></script>
+    <script src="/shared/profitability.js?v=20261008-inventory-profit" defer></script>
+    <script src="/js/admin.js?v=20261014-product-order" defer></script>
+    <script src="/js/admin-finance.js?v=20261008-inventory-profit" defer></script>
+    <script src="/js/admin-inventory.js?v=20261013-private-session" defer></script>
+    <script src="/js/admin-dashboard.js?v=20261013-private-session" defer></script>
+    <script src="/js/admin-banner.js?v=20261013-private-session" defer></script>
+    <script src="/js/admin-kits.js?v=20261013-private-session" defer></script>
+    <script src="/js/admin-ui.js?v=20261007-redesign" defer></script>
+    <script src="/js/search.js?v=20261011-sales-search" defer></script>
+    <script src="/js/admin-sales.js?v=20261013-private-session" defer></script>
+    <script src="/js/admin-sales-history.js?v=20261013-private-session" defer></script>
+  </body>
+</html>
