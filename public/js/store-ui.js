@@ -24,6 +24,37 @@
     dialog.querySelectorAll('[data-close-dialog]').forEach(button => button.addEventListener('click', () => closeDialog(dialog)));
     dialog.addEventListener('click', event => { if (event.target === dialog && (event.clientX < dialog.getBoundingClientRect().left || event.clientX > dialog.getBoundingClientRect().right || event.clientY < dialog.getBoundingClientRect().top || event.clientY > dialog.getBoundingClientRect().bottom)) closeDialog(dialog); });
   });
+  const imageDialog = query('#product-image-dialog');
+  const enlargedImage = imageDialog?.querySelector('img');
+  const imageStatus = query('#product-image-status');
+  if (imageDialog && enlargedImage && imageStatus) {
+    enlargedImage.addEventListener('load', () => {
+      enlargedImage.hidden = false;
+      imageStatus.hidden = true;
+    });
+    enlargedImage.addEventListener('error', () => {
+      enlargedImage.hidden = true;
+      imageStatus.textContent = 'Não foi possível carregar esta foto. Feche e tente novamente.';
+      imageStatus.hidden = false;
+    });
+    document.addEventListener('click', event => {
+      const trigger = event.target.closest('[data-open-product-image]');
+      const photo = trigger?.querySelector('img');
+      if (!photo || imageDialog.open) return;
+      query('#product-image-title').textContent = photo.alt;
+      imageStatus.textContent = 'Carregando imagem…';
+      imageStatus.hidden = false;
+      enlargedImage.hidden = true;
+      enlargedImage.alt = photo.alt;
+      enlargedImage.src = photo.currentSrc || photo.src;
+      openDialog(imageDialog, trigger);
+    });
+    imageDialog.addEventListener('close', () => {
+      enlargedImage.removeAttribute('src');
+      enlargedImage.alt = '';
+      enlargedImage.hidden = true;
+    });
+  }
   query('[data-open-menu]')?.addEventListener('click', event => openDialog(query('#mobile-menu'), event.currentTarget));
   query('#mobile-menu')?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => closeDialog(query('#mobile-menu'))));
   query('[data-open-filters]')?.addEventListener('click', event => openDialog(filterDialog, event.currentTarget));

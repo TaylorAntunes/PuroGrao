@@ -477,6 +477,11 @@ const { mock } = require('node:test');
     await assertPhotoFrame('[data-product="1"] .product-photo');
     await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
     await assertPhotoFrame('[data-product="1"] .product-photo');
+    await evaluate("document.querySelector('[data-product=\"1\"] .product-photo').click();");
+    await waitFor("document.querySelector('#product-image-dialog').open && document.querySelector('#product-image-dialog img').naturalHeight===800 && !document.querySelector('#product-image-dialog img').hidden");
+    assert.equal(await evaluate("getComputedStyle(document.querySelector('#product-image-dialog img')).objectFit"), 'contain');
+    await evaluate("document.querySelector('#product-image-dialog [data-close-dialog]').click();");
+    await waitFor("!document.querySelector('#product-image-dialog').open");
 
     // Feature and regression checks use only this script's temporary database.
     const site = `http://127.0.0.1:${server.address().port}`;
@@ -654,6 +659,51 @@ const { mock } = require('node:test');
     assert.equal(await evaluate("document.querySelector('#new-products-section').hidden"), false);
     assert.equal(await evaluate("document.querySelector('#kits-prontos').hidden"), false);
     assert.equal(await evaluate("document.querySelector('#ofertas').hidden"), true, 'Tuesday discounts must remain inactive on Wednesday');
+
+    const imageCartBefore = await evaluate("localStorage.getItem('puro-cart-weight-v1')");
+    for (const width of [360, 390, 430, 768, 1024, 1440]) {
+      await command('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: width < 768 });
+      for (const theme of ['light', 'dark']) {
+        await setTheme(theme);
+        await evaluate("document.querySelector('[data-product=\"1\"] [data-open-product-image]').focus();");
+        if (width === 390 && theme === 'light') {
+          await command('Emulation.setTouchEmulationEnabled', { enabled: true });
+          await evaluate("document.querySelector('[data-product=\"1\"] [data-open-product-image]').scrollIntoView({block:'center',behavior:'instant'});");
+          await waitFor("(() => {const box=document.querySelector('[data-product=\"1\"] [data-open-product-image]').getBoundingClientRect();return document.elementFromPoint(box.x+box.width/2,box.y+box.height/2)?.closest('[data-product=\"1\"] [data-open-product-image]');})()");
+          const point = await evaluate("(() => {const box=document.querySelector('[data-product=\"1\"] [data-open-product-image]').getBoundingClientRect();return {x:box.x+box.width/2,y:box.y+box.height/2};})()");
+          await command('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [point] });
+          await command('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+          await command('Emulation.setTouchEmulationEnabled', { enabled: false });
+        } else {
+          await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', text: '\r', unmodifiedText: '\r', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+          await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
+        }
+        await waitFor("document.querySelector('#product-image-dialog').open && !document.querySelector('#product-image-dialog img').hidden");
+        const imageView = await evaluate(`(() => {
+          const dialog=document.querySelector('#product-image-dialog'), image=dialog.querySelector('img'), box=dialog.getBoundingClientRect();
+          return {sameSource:image.src===document.querySelector('[data-product="1"] .product-photo').src,name:document.querySelector('#product-image-title').textContent,alt:image.alt,fit:getComputedStyle(image).objectFit,fits:box.left>=0&&box.right<=innerWidth&&box.top>=0&&box.bottom<=innerHeight,focus:dialog.contains(document.activeElement)};
+        })()`);
+        assert.equal(imageView.sameSource, true);
+        assert.equal(imageView.name, imageView.alt);
+        assert.equal(imageView.fit, 'contain');
+        assert.equal(imageView.fits, true, `Enlarged image must fit ${width}px in ${theme}`);
+        assert.equal(imageView.focus, true);
+        if ([390, 1440].includes(width)) await viewportShot(`product-image-${theme}-${width}.png`);
+        await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+        await waitFor("!document.querySelector('#product-image-dialog').open && document.activeElement.matches('[data-product=\"1\"] [data-open-product-image]') && !document.body.classList.contains('ui-dialog-open')");
+      }
+    }
+    await evaluate("document.querySelector('.highlight-card[data-choose-product=\"1\"] .product-photo').click();");
+    await waitFor("document.querySelector('#product-image-dialog').open && !document.querySelector('#product-image-dialog img').hidden");
+    await command('Input.dispatchMouseEvent', { type: 'mousePressed', x: 2, y: 2, button: 'left', clickCount: 1 });
+    await command('Input.dispatchMouseEvent', { type: 'mouseReleased', x: 2, y: 2, button: 'left', clickCount: 1 });
+    await waitFor("!document.querySelector('#product-image-dialog').open");
+    assert.equal(await evaluate("localStorage.getItem('puro-cart-weight-v1')"), imageCartBefore);
+    await evaluate("document.querySelector('.highlight-card[data-choose-product=\"1\"] .highlight-info').click();");
+    assert.equal(await evaluate("document.activeElement.id"), 'product-1', 'The shelf purchase link must still focus the product');
+    await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+    await waitFor("document.querySelector('.filters').parentElement.className==='filter-dialog-slot'");
+    console.log('Product images passed: catalog and shelves, portrait and landscape, touch, keyboard, close button, Escape, backdrop, restored focus, unchanged cart and six widths in both themes.');
 
     // One category list lives in the catalog; icons use the original filter handlers.
     assert.equal(await evaluate("document.querySelector('#category-cards, .category-section, [data-category-link]')"), null);

@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/design-system.css?v=20261007-redesign">
-    <link rel="stylesheet" href="/css/store.css?v=20261011-compact-categories">
+    <link rel="stylesheet" href="/css/store.css?v=20261015-product-image">
     <link rel="stylesheet" href="/css/theme.css?v=20261007-redesign">
   </head>
   <body data-page="offers">
@@ -79,6 +79,11 @@
     <dialog id="filter-dialog" class="ui-dialog" aria-labelledby="filter-dialog-title">
       <div class="dialog-heading"><h2 id="filter-dialog-title">Filtrar produtos</h2><button type="button" class="icon-button" data-close-dialog aria-label="Fechar filtros"><span data-icon="close"></span></button></div>
       <p>Escolha uma categoria para encontrar seus favoritos.</p><div class="filter-dialog-slot"></div>
+    </dialog>
+    <dialog id="product-image-dialog" class="ui-dialog product-image-dialog" aria-labelledby="product-image-title">
+      <div class="dialog-heading"><h2 id="product-image-title">Foto do produto</h2><button type="button" class="icon-button" data-close-dialog aria-label="Fechar imagem"><span data-icon="close"></span></button></div>
+      <p id="product-image-status" class="product-image-status" role="status" hidden></p>
+      <img alt="" hidden>
     </dialog>
     <div id="toast" class="toast" role="status" hidden>
     </div>
@@ -148,7 +153,7 @@
     <script src="/js/icons.js?v=20261007-redesign" defer></script>
     <script src="/shared/pricing.js?v=20261007-redesign" defer></script>
     <script src="/js/search.js?v=20261007-units" defer></script>
-    <script src="/js/store.js?v=20261014-product-order" defer></script>
-    <script src="/js/store-ui.js?v=20261015-mobile-category" defer></script>
+    <script src="/js/store.js?v=20261015-product-image" defer></script>
+    <script src="/js/store-ui.js?v=20261015-product-image" defer></script>
   </body>
 </html>
