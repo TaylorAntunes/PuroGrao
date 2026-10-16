@@ -161,16 +161,25 @@ test('stock conflicts refresh availability and show the error after removing una
   assert.equal(store.location.href, '');
 });
 
-test('product cards display available grams or kilos and use saved photos when present', async () => {
+test('compact product cards keep category metadata, show kilogram prices and use saved photos', async () => {
   const withPhoto = await storefront({}, 5000, '/api/products/1/image?v=test');
-  assert.match(withPhoto.element('#grid').innerHTML, /Estoque disponível: <strong>5 kg<\/strong>/);
+  assert.match(withPhoto.element('#grid').innerHTML, /data-category="Grãos"/);
+  assert.doesNotMatch(withPhoto.element('#grid').innerHTML, /stock-availability|product-category|Estoque disponível/);
+  assert.match(withPhoto.element('#grid').innerHTML, /class="reference-price">[^<]*60,00<span class="reference-price-unit"> \/ kg<\/span>/);
   assert.match(withPhoto.element('#grid').innerHTML, /class="product-photo" src="\/api\/products\/1\/image\?v=test"/);
   const grams = await storefront({}, 750);
-  assert.match(grams.element('#grid').innerHTML, /<strong>750 g<\/strong>/);
+  assert.doesNotMatch(grams.element('#grid').innerHTML, /stock-availability|product-category|750 g/);
   assert.doesNotMatch(grams.element('#grid').innerHTML, /class="product-photo"/);
-  assert.match((await storefront({}, 0)).element('#grid').innerHTML, /Esgotado · 0 g disponíveis/);
+  const empty = await storefront({}, 0);
+  assert.match(empty.element('#grid').innerHTML, /class="stock-tag sold-out">Esgotado<\/span>/);
+  assert.equal(empty.add.disabled, true);
   const positioned = await storefront({}, 5000, '/api/products/1/image?v=test', { image_position_x: 20, image_position_y: 75, image_fit: 'contain' });
   assert.match(positioned.element('#grid').innerHTML, /object-position:20% 75%;object-fit:contain/);
+  for (const priceWeight of [50, 100]) {
+    const discounted = await storefront({}, 5000, '', { price_weight_grams: priceWeight, price_cents: priceWeight * 10, discount_percent: 20 });
+    assert.match(discounted.element('#grid').innerHTML, /class="reference-price"><del>[^<]*100,00<\/del> <strong>[^<]*80,00<\/strong><span class="reference-price-unit"> \/ kg<\/span>/);
+    assert.match(discounted.element('[data-portion-price]').textContent, /8,00/);
+  }
 });
 
 test('Tuesday discounts match proportional cents in cards, highlights and cart', async () => {
@@ -265,7 +274,8 @@ test('background catalog refresh updates stock and adjusts portions without requ
   store.setStock(150);
   await store.refreshCatalog();
   assert.deepEqual(store.cart(), { '1:100': portion(100, 1) });
-  assert.match(store.element('#grid').innerHTML, /<strong>150 g<\/strong>/);
+  assert.doesNotMatch(store.element('#grid').innerHTML, /stock-availability|Estoque disponível/);
+  assert.equal(store.add.disabled, true, 'The remaining stock still prevents adding another portion');
   assert.match(store.element('#toast').textContent, /estoque disponível/);
   store.setStock(0);
   await store.refreshCatalog();
@@ -421,7 +431,8 @@ test('clearing or editing the cart cannot replace an unresolved checkout request
 test('unit cards show piece prices, add selected quantities and enforce available unit stock', async () => {
   const store = await storefront({}, 0, '', { sale_unit: 'unit', stock_units: 5, price_cents: 1250 });
   assert.match(store.element('#grid').innerHTML, /Por unidade/);
-  assert.match(store.element('#grid').innerHTML, /5 unidades/);
+  assert.doesNotMatch(store.element('#grid').innerHTML, /stock-availability|product-category|5 unidades/);
+  assert.match(store.element('#grid').innerHTML, /class="reference-price">[^<]*12,50<span class="reference-price-unit"> \/ unidade<\/span>/);
   assert.doesNotMatch(store.element('#grid').innerHTML, /data-custom-weight|data-weight=/);
   store.selectQuantity(3);
   assert.match(store.element('[data-portion-price]').textContent, /37,50/);

@@ -224,7 +224,7 @@
     if (grouped) {
       const categories = new Map();
       catalogCards.forEach(card => {
-        const category = card.querySelector('.product-category')?.textContent.trim() || 'Sem categoria';
+        const category = card.dataset.category?.trim() || 'Sem categoria';
         if (!categories.has(category)) categories.set(category, []);
         categories.get(category).push(card);
       });

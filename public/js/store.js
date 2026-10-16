@@ -335,9 +335,9 @@ function applyFilters() {
   $('#catalog-status').textContent = offersPage && !products.some(isOfferProduct) ? 'Não há ofertas ativas hoje. Confira os produtos no catálogo da loja.' : products.length ? 'Não encontramos produtos para essa busca.' : 'Nossa seleção estará disponível em breve.';
 }
 
-function priceLabel(product) {
-  const current = formatBrl(portionPrice(product, product.price_weight_grams));
-  return product.discount_percent ? `<del>${formatBrl(product.price_cents)}</del> <strong>${current}</strong>` : current;
+function priceLabel(product, grams = product.price_weight_grams) {
+  const current = formatBrl(portionPrice(product, grams));
+  return product.discount_percent ? `<del>${formatBrl(portionPrice({ ...product, discount_percent: 0 }, grams))}</del> <strong>${current}</strong>` : current;
 }
 
 function productPhoto(product) {
@@ -357,7 +357,7 @@ function renderHighlights() {
     $(`#${id}`).innerHTML = items.map(product => `
       <article class="highlight-card" data-choose-product="${product.id}">
         <div class="highlight-art">${product.image_url ? productPhoto(product) : `<a class="highlight-art-link" href="#product-${product.id}" aria-label="Ver ${escapeHtml(product.name)}">${productIllustration(product)}</a>`}<span class="highlight-badge ${product.discount_percent ? 'is-offer' : 'is-new'}">${product.discount_percent ? '20% OFF hoje' : id === 'best-sellers' ? 'Mais vendido' : 'Novidade'}</span></div>
-        <a class="highlight-info" href="#product-${product.id}" aria-label="Escolher ${isUnit(product) ? 'quantidade' : 'peso'} de ${escapeHtml(product.name)}"><small>${escapeHtml(product.category)}</small><h3>${escapeHtml(product.name)}</h3><p>${priceLabel(product)} <small>/ ${isUnit(product) ? 'unidade' : formatWeight(product.price_weight_grams)}</small></p><span class="highlight-action">${stockAmount(product) === 0 ? 'Esgotado · ver produto' : isUnit(product) ? 'Escolher quantidade' : 'Escolher peso'} ↗</span></a>
+        <a class="highlight-info" href="#product-${product.id}" aria-label="Escolher ${isUnit(product) ? 'quantidade' : 'peso'} de ${escapeHtml(product.name)}"><h3>${escapeHtml(product.name)}</h3><p>${priceLabel(product)} <small>/ ${isUnit(product) ? 'unidade' : formatWeight(product.price_weight_grams)}</small></p><span class="highlight-action">${stockAmount(product) === 0 ? 'Esgotado · ver produto' : isUnit(product) ? 'Escolher quantidade' : 'Escolher peso'} ↗</span></a>
       </article>`).join('');
   });
   updateHighlightsVisibility();
@@ -421,12 +421,12 @@ async function loadCatalog(data) {
     const selection = selections.get(product.id);
     const unit = isUnit(product);
     const stock = stockAmount(product);
-    return `<article class="card" id="product-${product.id}" tabindex="-1" data-product="${product.id}" data-sold-out="${stock === 0}">
+    return `<article class="card" id="product-${product.id}" tabindex="-1" data-product="${product.id}" data-category="${escapeHtml(product.category)}" data-sold-out="${stock === 0}">
       <div class="product-art ${product.image_url ? 'has-photo' : ''}">${product.image_url ? productPhoto(product) : productIllustration(product)}${stock === 0 ? '<span class="stock-tag sold-out">Esgotado</span>' : unit ? '<span class="stock-tag">Por unidade</span>' : ''}</div>
-      <div class="info"><small class="product-category">${escapeHtml(product.category)}</small><h3>${escapeHtml(product.name)}</h3><div class="product-promotion-tags">${product.discount_percent ? '<span class="offer-badge">Terça · 20% OFF</span>' : ''}${product.is_new ? '<span>Novidade</span>' : ''}</div>${productDescription(product, expandedDescriptions.has(String(product.id)))}<p class="stock-availability ${stock === 0 ? 'out-of-stock' : ''}">${stock > 0 ? `Estoque disponível: <strong>${formatAmount(product, stock)}</strong>` : unit ? 'Esgotado · 0 unidades disponíveis' : 'Esgotado · 0 g disponíveis'}</p><p class="reference-price">${priceLabel(product)} / ${unit ? 'unidade' : formatWeight(product.price_weight_grams)}</p>
+      <div class="info"><h3>${escapeHtml(product.name)}</h3><div class="product-promotion-tags">${product.discount_percent ? '<span class="offer-badge">Terça · 20% OFF</span>' : ''}${product.is_new ? '<span>Novidade</span>' : ''}</div>${productDescription(product, expandedDescriptions.has(String(product.id)))}
         ${unit ? `<div class="unit-quantity"><label for="unit-quantity-${product.id}">Quantidade <small>unidades</small></label><div class="unit-stepper" role="group" aria-label="Escolher quantidade de ${escapeHtml(product.name)}"><button type="button" data-unit-step="-" aria-label="Diminuir quantidade de ${escapeHtml(product.name)}">−</button><input id="unit-quantity-${product.id}" data-unit-quantity type="number" min="0" max="99" step="1" inputmode="numeric" value="${escapeHtml(selection.quantity ?? 1)}" aria-label="Quantidade de ${escapeHtml(product.name)} em unidades"><button type="button" data-unit-step="+" aria-label="Aumentar quantidade de ${escapeHtml(product.name)}">+</button></div></div>` : `<span class="weight-label" id="weight-label-${product.id}">Quanto você quer levar?</span><div class="weights" role="group" aria-labelledby="weight-label-${product.id}">${[100,250,500,1000].map(grams => `<button data-weight="${grams}" aria-pressed="${!selection.custom && selection.grams === grams}">${formatWeight(grams)}</button>`).join('')}<button class="custom-option" data-weight="custom" aria-pressed="${selection.custom}">Peso personalizado</button></div>
         <label class="custom-weight" ${selection.custom ? '' : 'hidden'}>Gramas<input data-custom-weight type="number" min="1" max="${maxWeight}" step="1" inputmode="numeric" value="${escapeHtml(selection.grams)}" aria-label="Peso personalizado de ${escapeHtml(product.name)} em gramas"><span>g</span></label>`}
-        <div class="portion-footer"><div><span class="price" data-portion-price></span><small data-portion-label></small></div><button class="btn" data-add="${product.id}">Adicionar <span aria-hidden="true">+</span></button></div><p class="product-error" data-product-error role="status"></p>
+        <div class="portion-footer"><div class="product-price-line"><div class="portion-price-main"><span class="price" data-portion-price></span><small data-portion-label></small></div><small class="reference-price">${priceLabel(product, unit ? 1 : 1000)}<span class="reference-price-unit"> / ${unit ? 'unidade' : 'kg'}</span></small></div><button class="btn" data-add="${product.id}">Adicionar <span aria-hidden="true">+</span></button></div><p class="product-error" data-product-error role="status"></p>
         <a class="product-share" data-share-product target="_blank" rel="noopener noreferrer" aria-label="Compartilhar ${escapeHtml(product.name)} pelo WhatsApp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.4-4.3A8 8 0 1 1 20 11.5Z"/><path d="M8.5 7.5c-.5 4 2 6.5 6 7l1-2-2-1-1 1c-1-.5-2-1.5-2.5-2.5l1-1-1-2Z"/></svg>Compartilhar</a>
       </div></article>`;
   }).join('');
