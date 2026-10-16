@@ -748,7 +748,9 @@ const { mock } = require('node:test');
     const carouselUnitSource = carouselCatalog.products.find(product => product.sale_unit === 'unit' && product.stock_units > 2);
     assert.ok(carouselWeightSource && carouselUnitSource, 'Carousel checks need both existing selling methods');
     const carouselExtraProducts = Array.from({ length: 10 }, (_, index) => ({
-      ...carouselWeightSource, id: 100001 + index, name: `Chá carrossel ${String(index + 1).padStart(2, '0')}`,
+      ...carouselWeightSource, id: 100001 + index,
+      name: index === 0 ? 'Chá carrossel' : index === 1 ? 'Chá carrossel de camomila com erva-doce e folhas selecionadas' : `Chá carrossel ${String(index + 1).padStart(2, '0')}`,
+      description: index === 2 ? 'Flores e folhas selecionadas para preparar uma infusão aromática. Escolha o peso desejado e consulte as orientações da embalagem para o preparo.' : carouselWeightSource.description,
       category: 'Chás', best_seller_rank: 0, is_new: index === 9 ? 1 : 0, tuesday_promo: 0, discount_percent: 0,
     }));
     carouselExtraProducts.push({ ...carouselUnitSource, id: 100011, name: 'Chá carrossel por unidade', category: 'Chás', best_seller_rank: 0, is_new: 0, tuesday_promo: 0, discount_percent: 0 });
@@ -804,6 +806,15 @@ const { mock } = require('node:test');
           const trackBounds = await evaluate(`(() => {const track=${carouselTrack},box=track.getBoundingClientRect();return {overflow:track.scrollWidth>track.clientWidth,left:box.left,right:box.right,cards:[...track.children].every(card=>card.getBoundingClientRect().width<=track.clientWidth+1)};})()`);
           assert.equal(trackBounds.overflow, true, `The fixture must exercise horizontal movement at ${width}px`);
           assert.ok(trackBounds.left >= 0 && trackBounds.right <= width + 1 && trackBounds.cards, `The row and each card fit ${theme} ${width}`);
+          const cardAlignment = await evaluate(`(() => {
+            const track=${carouselTrack};
+            const cards=[...track.children].map(card=>({height:card.offsetHeight,buttonTop:card.querySelector('[data-add]').getBoundingClientRect().top-card.getBoundingClientRect().top}));
+            const textFits=selector=>{const element=document.querySelector(selector),range=document.createRange();range.selectNodeContents(element);const text=range.getBoundingClientRect(),box=element.getBoundingClientRect();return text.top>=box.top-1&&text.bottom<=box.bottom+1&&text.width<=box.width+1;};
+            return {heights:cards.map(card=>card.height),buttons:cards.map(card=>card.buttonTop),fullName:textFits('#product-100002 h3'),fullDescription:textFits('#product-100003 .description'),customVisible:document.querySelector('#product-100001 .custom-weight').checkVisibility()};
+          })()`);
+          assert.ok(Math.max(...cardAlignment.heights)-Math.min(...cardAlignment.heights)<=1, `Short names, long names, descriptions, custom weights and unit products keep equal card heights at ${theme} ${width}`);
+          assert.ok(Math.max(...cardAlignment.buttons)-Math.min(...cardAlignment.buttons)<=1, `Add buttons align across the category row at ${theme} ${width}`);
+          assert.ok(cardAlignment.fullName&&cardAlignment.fullDescription&&cardAlignment.customVisible, `Complete text and the selected custom weight remain visible at ${theme} ${width}`);
           await fitViewport(width, `Category carousels ${theme} ${width}`);
           await evaluate(`${carouselRow}.querySelector('[data-carousel-direction="next"]').click();`);
           await waitFor(`${carouselTrack}.scrollLeft>20 && !${carouselRow}.querySelector('[data-carousel-direction="previous"]').disabled`);
@@ -896,7 +907,7 @@ const { mock } = require('node:test');
       await waitFor("document.querySelector('.filters').parentElement.className==='filter-dialog-slot'");
     }
     assert.equal(await evaluate("localStorage.getItem('puro-cart-weight-v1')"), carouselCartBefore);
-    console.log('Category carousels passed: original card identity/order, category and search grids, weights/units/cart, accessible arrows, edge states, mouse/touch on clipped cards, real mobile swipe, offscreen product links, refresh focus and six widths in both themes.');
+    console.log('Category carousels passed: original card identity/order, category and search grids, equal card heights and aligned actions with complete text, weights/units/cart, accessible arrows, edge states, mouse/touch on clipped cards, real mobile swipe, offscreen product links, refresh focus and six widths in both themes.');
 
     // Verify the six requested widths and both token sets on the Home and cart.
     for (const width of [360, 390, 430, 768, 1024, 1440]) {
