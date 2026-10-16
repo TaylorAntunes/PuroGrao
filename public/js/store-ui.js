@@ -35,6 +35,15 @@
   }
   mobile.addEventListener('change', placeFilters);
   placeFilters();
+  filters?.addEventListener('click', event => {
+    if (!mobile.matches || !filterDialog?.open || !event.target.closest('[data-category]')) return;
+    filterDialog.addEventListener('close', () => {
+      const product = query('#grid .card:not([hidden])');
+      product?.focus({ preventScroll: true });
+      (product || query('#catalog-status'))?.scrollIntoView({ block: 'start' });
+    }, { once: true });
+    closeDialog(filterDialog);
+  });
   function clearFilters() {
     [...(filters?.querySelectorAll('[data-category]') || [])].find(button => button.dataset.category === 'Todos')?.click();
     const search = query('#search');
