@@ -81,6 +81,14 @@ svg { width:20px; height:20px; flex-shrink:0; }
 .product-promotion-tags span { background:var(--primary-soft); color:var(--primary); padding:4px 8px; font-size:10px; font-weight:700; border-radius:var(--radius-pill); }
 .product-promotion-tags .offer-badge { background:var(--offer-soft); color:var(--offer-text); }
 .description { color:var(--text-secondary); font-size:13px; line-height:1.65; margin-bottom:12px; overflow-wrap:anywhere; }
+.product-description { margin-bottom:6px; }
+.product-description summary { display:inline-flex; align-items:center; min-height:28px; max-width:100%; padding:2px 0; list-style:none; color:var(--primary); font-size:12px; font-weight:600; text-decoration:underline; text-underline-offset:3px; cursor:pointer; border-radius:var(--radius-sm); }
+.product-description summary::-webkit-details-marker { display:none; }
+.product-description summary:hover { color:var(--primary-hover); }
+.product-description .description-hide,.product-description[open] .description-show { display:none; }
+.product-description[open] .description-hide { display:inline; }
+.product-description>.description { margin-top:4px; margin-bottom:0; }
+@media(pointer:coarse) { .product-description summary { min-height:32px; } }
 .stock-availability { color:var(--text-secondary); font-size:11px; line-height:1.6; margin-bottom:12px; }
 .stock-availability strong { color:var(--text); white-space:nowrap; }
 .stock-availability.out-of-stock { color:var(--text-secondary); }

@@ -750,7 +750,7 @@ const { mock } = require('node:test');
     const carouselExtraProducts = Array.from({ length: 10 }, (_, index) => ({
       ...carouselWeightSource, id: 100001 + index,
       name: index === 0 ? 'Chá carrossel' : index === 1 ? 'Chá carrossel de camomila com erva-doce e folhas selecionadas' : `Chá carrossel ${String(index + 1).padStart(2, '0')}`,
-      description: index === 2 ? 'Flores e folhas selecionadas para preparar uma infusão aromática. Escolha o peso desejado e consulte as orientações da embalagem para o preparo.' : carouselWeightSource.description,
+      description: index === 2 ? 'Flores e folhas selecionadas para preparar uma infusão aromática. Escolha o peso desejado e consulte as orientações da embalagem para o preparo.' : index === 3 ? '  \n\t  ' : carouselWeightSource.description,
       category: 'Chás', best_seller_rank: 0, is_new: index === 9 ? 1 : 0, tuesday_promo: 0, discount_percent: 0,
     }));
     carouselExtraProducts.push({ ...carouselUnitSource, id: 100011, name: 'Chá carrossel por unidade', category: 'Chás', best_seller_rank: 0, is_new: 0, tuesday_promo: 0, discount_percent: 0 });
@@ -773,21 +773,27 @@ const { mock } = require('node:test');
         assert.deepEqual(row.ids, carouselFixture.products.filter(product => product.category === row.name).map(product => product.id), 'Manual product order remains intact within each category');
       }
       assert.equal(await evaluate("document.querySelectorAll('#grid .card').length"), carouselFixture.products.length);
+      assert.equal(await evaluate("document.querySelectorAll('#grid .product-description[open]').length"), 0, 'Product descriptions start collapsed');
+      assert.equal(await evaluate("document.querySelector('#product-100004 [data-description-toggle]')"), null, 'A whitespace-only description has no disclosure control');
+      assert.ok(await evaluate("[...document.querySelectorAll('#grid [data-description-toggle]')].every(summary=>summary.tagName==='SUMMARY'&&summary.parentElement.tagName==='DETAILS'&&summary.querySelector('.description-show').checkVisibility()&&!summary.querySelector('.description-hide').checkVisibility())"), 'Descriptions use native disclosures with a visible show label');
       assert.ok(await evaluate("(() => {const ids=[...document.querySelectorAll('#grid [id]')].map(node=>node.id);return new Set(ids).size===ids.length;})()"), 'Grouping must never clone product or control IDs');
       assert.ok(await evaluate("[...document.querySelectorAll('.catalog-category-row [data-carousel-direction]')].every(button=>button.tagName==='BUTTON' && button.getAttribute('aria-label') && document.getElementById(button.getAttribute('aria-controls'))===button.closest('.catalog-category-row').querySelector('.catalog-carousel-track'))"), 'Carousel arrows identify the track they control');
       await evaluate("(() => {window.__carouselNodes=[...document.querySelectorAll('#grid .card')];document.querySelector('[data-product=\"100001\"] [data-weight=\"custom\"]').click();const weight=document.querySelector('[data-product=\"100001\"] [data-custom-weight]');weight.value='333';weight.dispatchEvent(new Event('input',{bubbles:true}));const quantity=document.querySelector('[data-product=\"100011\"] [data-unit-quantity]');quantity.value='2';quantity.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-product=\"1\"] [data-add]').click();})()");
       const carouselCartWithProduct = await evaluate("localStorage.getItem('puro-cart-weight-v1')");
       assert.notEqual(carouselCartWithProduct, carouselCartBefore, 'A real existing product can still be added from its category row');
+      await evaluate("document.querySelector('#product-100003 [data-description-toggle]').click();");
       await evaluate("document.querySelector('.filters [data-category=\"Chás\"]').click();");
       await waitFor("!document.querySelector('#grid').classList.contains('catalog-rows')");
       assert.deepEqual(await evaluate("[...document.querySelectorAll('#grid > .card:not([hidden])')].map(card=>Number(card.dataset.product))"), carouselCategoryIds, 'A specific category retains the normal filtered grid');
       assert.deepEqual(await evaluate("[...document.querySelectorAll('#grid > .card')].map(card=>Number(card.dataset.product))"), carouselFixture.products.map(product => product.id), 'Flattening restores the original manual order');
       assert.equal(await evaluate(carouselNodesPreserved), true, 'Category filtering moves the same card nodes');
+      assert.equal(await evaluate("document.querySelector('#product-100003 .product-description').open"), true, 'A category filter preserves the expanded description');
       await evaluate("document.querySelector('[data-clear-filters]').click();document.querySelector('#search').value='carrossel';document.querySelector('#search').dispatchEvent(new Event('input'));");
       await waitFor("!document.querySelector('#grid').classList.contains('catalog-rows')");
       assert.deepEqual(await evaluate("[...document.querySelectorAll('#grid > .card')].map(card=>Number(card.dataset.product))"), carouselFixture.products.map(product => product.id), 'Search restores the complete source order before hiding nonmatches');
       assert.deepEqual(await evaluate("[...document.querySelectorAll('#grid > .card:not([hidden])')].map(card=>Number(card.dataset.product))"), carouselExtraProducts.map(product => product.id), 'Search results remain a single grid');
       assert.equal(await evaluate(carouselNodesPreserved), true);
+      assert.equal(await evaluate("document.querySelector('#product-100003 .product-description').open"), true, 'Search preserves the expanded description');
       await evaluate("document.querySelector('#search').value='   ';document.querySelector('#search').dispatchEvent(new Event('input'));");
       await waitFor("document.querySelector('#grid').classList.contains('catalog-rows')");
       assert.equal(await evaluate(carouselNodesPreserved), true, 'Returning to all products preserves the same controls');
@@ -795,7 +801,7 @@ const { mock } = require('node:test');
       assert.equal(await evaluate("document.querySelector('[data-product=\"100001\"] [data-weight=\"custom\"]').getAttribute('aria-pressed')"), 'true');
       assert.equal(await evaluate("document.querySelector('[data-product=\"100011\"] [data-unit-quantity]').value"), '2');
       assert.equal(await evaluate("localStorage.getItem('puro-cart-weight-v1')"), carouselCartWithProduct, 'Grouping, category filters and search leave the cart intact');
-      await evaluate("document.querySelector('#search').value='';document.querySelector('#search').dispatchEvent(new Event('input'));");
+      await evaluate("document.querySelector('#search').value='';document.querySelector('#search').dispatchEvent(new Event('input'));document.querySelector('#product-100003 [data-description-toggle]').click();");
 
       for (const width of [360, 390, 430, 768, 1024, 1440]) {
         await command('Emulation.setDeviceMetricsOverride', { width, height: width < 768 ? 844 : 1000, deviceScaleFactor: 1, mobile: width < 768 });
@@ -806,15 +812,32 @@ const { mock } = require('node:test');
           const trackBounds = await evaluate(`(() => {const track=${carouselTrack},box=track.getBoundingClientRect();return {overflow:track.scrollWidth>track.clientWidth,left:box.left,right:box.right,cards:[...track.children].every(card=>card.getBoundingClientRect().width<=track.clientWidth+1)};})()`);
           assert.equal(trackBounds.overflow, true, `The fixture must exercise horizontal movement at ${width}px`);
           assert.ok(trackBounds.left >= 0 && trackBounds.right <= width + 1 && trackBounds.cards, `The row and each card fit ${theme} ${width}`);
-          const cardAlignment = await evaluate(`(() => {
+          const alignmentExpression = `(() => {
             const track=${carouselTrack};
             const cards=[...track.children].map(card=>({height:card.offsetHeight,buttonTop:card.querySelector('[data-add]').getBoundingClientRect().top-card.getBoundingClientRect().top}));
             const textFits=selector=>{const element=document.querySelector(selector),range=document.createRange();range.selectNodeContents(element);const text=range.getBoundingClientRect(),box=element.getBoundingClientRect();return text.top>=box.top-1&&text.bottom<=box.bottom+1&&text.width<=box.width+1;};
-            return {heights:cards.map(card=>card.height),buttons:cards.map(card=>card.buttonTop),fullName:textFits('#product-100002 h3'),fullDescription:textFits('#product-100003 .description'),customVisible:document.querySelector('#product-100001 .custom-weight').checkVisibility()};
-          })()`);
-          assert.ok(Math.max(...cardAlignment.heights)-Math.min(...cardAlignment.heights)<=1, `Short names, long names, descriptions, custom weights and unit products keep equal card heights at ${theme} ${width}`);
-          assert.ok(Math.max(...cardAlignment.buttons)-Math.min(...cardAlignment.buttons)<=1, `Add buttons align across the category row at ${theme} ${width}`);
-          assert.ok(cardAlignment.fullName&&cardAlignment.fullDescription&&cardAlignment.customVisible, `Complete text and the selected custom weight remain visible at ${theme} ${width}`);
+            const details=document.querySelector('#product-100003 .product-description');
+            return {heights:cards.map(card=>card.height),buttons:cards.map(card=>card.buttonTop),fullName:textFits('#product-100002 h3'),fullDescription:details.open&&textFits('#product-100003 .description'),customVisible:document.querySelector('#product-100001 .custom-weight').checkVisibility(),open:details.open,show:details.querySelector('.description-show').checkVisibility(),hide:details.querySelector('.description-hide').checkVisibility()};
+          })()`;
+          const collapsedAlignment = await evaluate(alignmentExpression);
+          assert.equal(collapsedAlignment.open, false);
+          assert.ok(collapsedAlignment.show&&!collapsedAlignment.hide, `The closed description offers a clear show label at ${theme} ${width}`);
+          await evaluate("document.querySelector('#product-100003 [data-description-toggle]').click();");
+          const expandedAlignment = await evaluate(alignmentExpression);
+          assert.equal(expandedAlignment.open, true);
+          assert.ok(expandedAlignment.fullDescription&&!expandedAlignment.show&&expandedAlignment.hide, `Opening reveals the complete description and hide label at ${theme} ${width}`);
+          for (const [state, alignment] of [['collapsed',collapsedAlignment],['expanded',expandedAlignment]]) {
+            assert.ok(Math.max(...alignment.heights)-Math.min(...alignment.heights)<=1, `Short names, long names, ${state} descriptions, custom weights and units keep equal card heights at ${theme} ${width}`);
+            assert.ok(Math.max(...alignment.buttons)-Math.min(...alignment.buttons)<=1, `Add buttons align with ${state} descriptions at ${theme} ${width}`);
+            assert.ok(alignment.fullName&&alignment.customVisible, `Complete names and the selected custom weight stay visible at ${theme} ${width}`);
+          }
+          await evaluate("document.querySelector('#product-100003 [data-description-toggle]').click();");
+          const closedHeight = await evaluate("document.querySelector('#product-100003').offsetHeight");
+          assert.ok(closedHeight<expandedAlignment.heights[0], `Closing the description reduces the row height at ${theme} ${width}`);
+          assert.equal(closedHeight, collapsedAlignment.heights[0], 'The disclosure returns to its original compact height');
+          assert.equal(await evaluate("document.querySelector('[data-product=\"100001\"] [data-custom-weight]').value"), '333');
+          assert.equal(await evaluate("document.querySelector('[data-product=\"100011\"] [data-unit-quantity]').value"), '2');
+          assert.equal(await evaluate("localStorage.getItem('puro-cart-weight-v1')"), carouselCartWithProduct, 'Description toggles do not affect the cart');
           await fitViewport(width, `Category carousels ${theme} ${width}`);
           await evaluate(`${carouselRow}.querySelector('[data-carousel-direction="next"]').click();`);
           await waitFor(`${carouselTrack}.scrollLeft>20 && !${carouselRow}.querySelector('[data-carousel-direction="previous"]').disabled`);
@@ -826,6 +849,32 @@ const { mock } = require('node:test');
           if ([390, 1440].includes(width)) await viewportShot(`catalog-carousels-${theme}-${width}.png`);
         }
       }
+
+      // Native details support real keyboard activation and taps without changing purchase controls.
+      await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+      await evaluate("document.querySelector('#product-100003 [data-description-toggle]').focus();");
+      await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', text: '\r', unmodifiedText: '\r', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+      await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, nativeVirtualKeyCode: 13 });
+      await waitFor("document.querySelector('#product-100003 .product-description').open");
+      await command('Input.dispatchKeyEvent', { type: 'keyDown', key: ' ', code: 'Space', text: ' ', unmodifiedText: ' ', windowsVirtualKeyCode: 32, nativeVirtualKeyCode: 32 });
+      await command('Input.dispatchKeyEvent', { type: 'keyUp', key: ' ', code: 'Space', windowsVirtualKeyCode: 32, nativeVirtualKeyCode: 32 });
+      await waitFor("!document.querySelector('#product-100003 .product-description').open");
+      await evaluate("document.querySelector('#product-100003 [data-description-toggle]').scrollIntoView({block:'center',inline:'center',behavior:'instant'});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));");
+      const descriptionTap = await evaluate("(() => {const summary=document.querySelector('#product-100003 [data-description-toggle]'),box=summary.getBoundingClientRect(),point={x:box.x+box.width/2,y:box.y+box.height/2};return {...point,hit:document.elementFromPoint(point.x,point.y)?.closest('summary')===summary};})()");
+      assert.equal(descriptionTap.hit, true, 'The description control is a visible mobile tap target');
+      await command('Emulation.setTouchEmulationEnabled', { enabled: true });
+      await command('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: descriptionTap.x, y: descriptionTap.y, id: 1 }] });
+      await command('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await command('Emulation.setTouchEmulationEnabled', { enabled: false });
+      await waitFor("document.querySelector('#product-100003 .product-description').open");
+      await evaluate("document.querySelector('#product-100003 [data-description-toggle]').focus();");
+      await evaluate(`loadCatalog(${JSON.stringify(carouselFixture)})`);
+      await evaluate('clearTimeout(promotionTimer)');
+      await waitFor("document.querySelector('#product-100003 .product-description').open&&document.activeElement===document.querySelector('#product-100003 [data-description-toggle]')");
+      assert.equal(await evaluate("document.querySelector('[data-product=\"100001\"] [data-custom-weight]').value"), '333', 'Refreshing an expanded description preserves the custom weight');
+      assert.equal(await evaluate("document.querySelector('[data-product=\"100011\"] [data-unit-quantity]').value"), '2', 'Refreshing an expanded description preserves unit selection');
+      assert.equal(await evaluate("localStorage.getItem('puro-cart-weight-v1')"), carouselCartWithProduct, 'Keyboard, touch and refresh leave the cart intact');
+      await evaluate("document.querySelector('#product-100003 [data-description-toggle]').click();");
 
       // Focusing a clicked control must not move a partially visible card between press and release.
       for (const width of [1440, 390]) {
@@ -907,7 +956,7 @@ const { mock } = require('node:test');
       await waitFor("document.querySelector('.filters').parentElement.className==='filter-dialog-slot'");
     }
     assert.equal(await evaluate("localStorage.getItem('puro-cart-weight-v1')"), carouselCartBefore);
-    console.log('Category carousels passed: original card identity/order, category and search grids, equal card heights and aligned actions with complete text, weights/units/cart, accessible arrows, edge states, mouse/touch on clipped cards, real mobile swipe, offscreen product links, refresh focus and six widths in both themes.');
+    console.log('Category carousels passed: original card identity/order, category and search grids, compact native description disclosures, keyboard/touch/refresh, equal card heights and aligned actions with complete text, weights/units/cart, accessible arrows, edge states, mouse/touch on clipped cards, real mobile swipe, offscreen product links, refresh focus and six widths in both themes.');
 
     // Verify the six requested widths and both token sets on the Home and cart.
     for (const width of [360, 390, 430, 768, 1024, 1440]) {
@@ -999,6 +1048,17 @@ const { mock } = require('node:test');
     await waitFor("document.querySelectorAll('.card').length===12");
     assert.equal(await evaluate("document.querySelector('#grid').classList.contains('catalog-rows') || Boolean(document.querySelector('#grid .catalog-category-row'))"), false, 'The offers page preserves its existing flat grid');
     assert.match(await evaluate("document.querySelector('#catalog-status').textContent"), /Não há ofertas/);
+    const offersDescriptionFixture = structuredClone(promotionalCatalog);
+    const offersDescriptionProduct = offersDescriptionFixture.products[0];
+    Object.assign(offersDescriptionProduct, { description: 'Ingredientes selecionados para a sua rotina.', tuesday_promo: 0, discount_percent: 20 });
+    await evaluate(`loadCatalog(${JSON.stringify(offersDescriptionFixture)})`);
+    await evaluate('clearTimeout(promotionTimer)');
+    const offersDescriptionSelector = `#product-${offersDescriptionProduct.id} .product-description`;
+    assert.equal(await evaluate(`document.querySelector(${JSON.stringify(offersDescriptionSelector)}).open`), false, 'The same native description starts closed on an offer card');
+    await evaluate(`document.querySelector(${JSON.stringify(offersDescriptionSelector + ' summary')}).click();`);
+    assert.ok(await evaluate(`document.querySelector(${JSON.stringify(offersDescriptionSelector)}).open && document.querySelector(${JSON.stringify(offersDescriptionSelector + ' .description')}).checkVisibility()`), 'An offer card reveals its description without leaving the page');
+    assert.equal(await evaluate("document.querySelector('#grid').classList.contains('catalog-rows')"), false);
+    await evaluate(`document.querySelector(${JSON.stringify(offersDescriptionSelector + ' summary')}).click();loadCatalog();`);
     await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
     await evaluate("document.querySelector('[data-open-filters]').click();document.querySelector('.filters [data-category=\"Todos\"]').click();");
     await waitFor("!document.querySelector('#filter-dialog').open && !document.body.classList.contains('ui-dialog-open')");

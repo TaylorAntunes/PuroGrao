@@ -218,6 +218,12 @@ if ($('#ready-kits')) $('#ready-kits').onclick = event => {
   notify(`${kit.name} adicionado ao seu pedido.`);
 };
 
+function productDescription(product, expanded) {
+  const description = String(product.description || '').trim();
+  if (!description) return '';
+  return `<details class="product-description"${expanded ? ' open' : ''}><summary data-description-toggle aria-controls="product-description-${product.id}"><span class="description-show">Mostrar descrição</span><span class="description-hide">Ocultar descrição</span></summary><p class="description" id="product-description-${product.id}">${escapeHtml(description)}</p></details>`;
+}
+
 // Decorative, code-native pantry illustrations; colors come from the product palette.
 function productIllustration(product) {
   const nuts = normalize(product.category).includes('castanh');
@@ -397,7 +403,8 @@ async function loadCatalog(data) {
   data = data || await fetchCatalog();
   const active = document.activeElement;
   const activeCard = active?.closest?.('[data-product]');
-  const focusSelector = activeCard && (active.matches('[data-unit-quantity]') ? '[data-unit-quantity]' : active.dataset.unitStep ? `[data-unit-step="${active.dataset.unitStep}"]` : active.matches('[data-custom-weight]') ? '[data-custom-weight]' : active.dataset.weight ? `[data-weight="${active.dataset.weight}"]` : active.matches('[data-share-product]') ? '[data-share-product]' : active.matches('[data-add]') ? '[data-add]' : null);
+  const focusSelector = activeCard && (active.matches('[data-unit-quantity]') ? '[data-unit-quantity]' : active.dataset.unitStep ? `[data-unit-step="${active.dataset.unitStep}"]` : active.matches('[data-custom-weight]') ? '[data-custom-weight]' : active.dataset.weight ? `[data-weight="${active.dataset.weight}"]` : active.matches('[data-share-product]') ? '[data-share-product]' : active.matches('[data-add]') ? '[data-add]' : active.matches('[data-description-toggle]') ? '[data-description-toggle]' : null);
+  const expandedDescriptions = new Set([...document.querySelectorAll('#grid .product-description[open]')].map(details => details.closest('[data-product]').dataset.product));
   renderBanner(data.banner);
   products = data.products;
   promotion = data.promotion || null;
@@ -416,7 +423,7 @@ async function loadCatalog(data) {
     const stock = stockAmount(product);
     return `<article class="card" id="product-${product.id}" tabindex="-1" data-product="${product.id}" data-sold-out="${stock === 0}">
       <div class="product-art ${product.image_url ? 'has-photo' : ''}">${product.image_url ? productPhoto(product) : productIllustration(product)}${stock === 0 ? '<span class="stock-tag sold-out">Esgotado</span>' : unit ? '<span class="stock-tag">Por unidade</span>' : ''}</div>
-      <div class="info"><small class="product-category">${escapeHtml(product.category)}</small><h3>${escapeHtml(product.name)}</h3><div class="product-promotion-tags">${product.discount_percent ? '<span class="offer-badge">Terça · 20% OFF</span>' : ''}${product.is_new ? '<span>Novidade</span>' : ''}</div><p class="description">${escapeHtml(product.description)}</p><p class="stock-availability ${stock === 0 ? 'out-of-stock' : ''}">${stock > 0 ? `Estoque disponível: <strong>${formatAmount(product, stock)}</strong>` : unit ? 'Esgotado · 0 unidades disponíveis' : 'Esgotado · 0 g disponíveis'}</p><p class="reference-price">${priceLabel(product)} / ${unit ? 'unidade' : formatWeight(product.price_weight_grams)}</p>
+      <div class="info"><small class="product-category">${escapeHtml(product.category)}</small><h3>${escapeHtml(product.name)}</h3><div class="product-promotion-tags">${product.discount_percent ? '<span class="offer-badge">Terça · 20% OFF</span>' : ''}${product.is_new ? '<span>Novidade</span>' : ''}</div>${productDescription(product, expandedDescriptions.has(String(product.id)))}<p class="stock-availability ${stock === 0 ? 'out-of-stock' : ''}">${stock > 0 ? `Estoque disponível: <strong>${formatAmount(product, stock)}</strong>` : unit ? 'Esgotado · 0 unidades disponíveis' : 'Esgotado · 0 g disponíveis'}</p><p class="reference-price">${priceLabel(product)} / ${unit ? 'unidade' : formatWeight(product.price_weight_grams)}</p>
         ${unit ? `<div class="unit-quantity"><label for="unit-quantity-${product.id}">Quantidade <small>unidades</small></label><div class="unit-stepper" role="group" aria-label="Escolher quantidade de ${escapeHtml(product.name)}"><button type="button" data-unit-step="-" aria-label="Diminuir quantidade de ${escapeHtml(product.name)}">−</button><input id="unit-quantity-${product.id}" data-unit-quantity type="number" min="0" max="99" step="1" inputmode="numeric" value="${escapeHtml(selection.quantity ?? 1)}" aria-label="Quantidade de ${escapeHtml(product.name)} em unidades"><button type="button" data-unit-step="+" aria-label="Aumentar quantidade de ${escapeHtml(product.name)}">+</button></div></div>` : `<span class="weight-label" id="weight-label-${product.id}">Quanto você quer levar?</span><div class="weights" role="group" aria-labelledby="weight-label-${product.id}">${[100,250,500,1000].map(grams => `<button data-weight="${grams}" aria-pressed="${!selection.custom && selection.grams === grams}">${formatWeight(grams)}</button>`).join('')}<button class="custom-option" data-weight="custom" aria-pressed="${selection.custom}">Peso personalizado</button></div>
         <label class="custom-weight" ${selection.custom ? '' : 'hidden'}>Gramas<input data-custom-weight type="number" min="1" max="${maxWeight}" step="1" inputmode="numeric" value="${escapeHtml(selection.grams)}" aria-label="Peso personalizado de ${escapeHtml(product.name)} em gramas"><span>g</span></label>`}
         <div class="portion-footer"><div><span class="price" data-portion-price></span><small data-portion-label></small></div><button class="btn" data-add="${product.id}">Adicionar <span aria-hidden="true">+</span></button></div><p class="product-error" data-product-error role="status"></p>
