@@ -430,7 +430,7 @@ test('clearing or editing the cart cannot replace an unresolved checkout request
 
 test('unit cards show piece prices, add selected quantities and enforce available unit stock', async () => {
   const store = await storefront({}, 0, '', { sale_unit: 'unit', stock_units: 5, price_cents: 1250 });
-  assert.match(store.element('#grid').innerHTML, /Por unidade/);
+  assert.doesNotMatch(store.element('#grid').innerHTML, /Por unidade/);
   assert.doesNotMatch(store.element('#grid').innerHTML, /stock-availability|product-category|5 unidades/);
   assert.match(store.element('#grid').innerHTML, /class="reference-price">[^<]*12,50<span class="reference-price-unit"> \/ unidade<\/span>/);
   assert.doesNotMatch(store.element('#grid').innerHTML, /data-custom-weight|data-weight=/);
