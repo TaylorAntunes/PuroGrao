@@ -154,7 +154,7 @@ svg { width:20px; height:20px; flex-shrink:0; }
 .catalog-carousel-track>.card { scroll-snap-align:start; }
 .catalog-carousel-track .product-art { aspect-ratio:1.7; }
 .catalog-carousel-track .info { padding:10px 12px; }
-.catalog-carousel-track .info h3 { min-block-size:4.05em; margin:0 0 6px; font-size:16px; line-height:1.35; }
+.catalog-carousel-track .info h3 { margin:0 0 6px; font-size:16px; line-height:1.35; }
 .catalog-carousel-track .product-promotion-tags { margin-bottom:6px; }
 .catalog-carousel-track .description { margin-bottom:6px; font-size:12px; line-height:1.5; }
 .catalog-carousel-track .stock-availability { margin-bottom:6px; }
