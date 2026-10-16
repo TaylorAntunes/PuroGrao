@@ -588,9 +588,10 @@ const { mock } = require('node:test');
       await command('Emulation.setDeviceMetricsOverride', {width,height:1000,deviceScaleFactor:1,mobile:width<768});
       for(const theme of ['light','dark']) {
         await evaluate(`localStorage.setItem('puro-theme','${theme}');window.dispatchEvent(new StorageEvent('storage',{key:'puro-theme'}));document.querySelector('[data-product="${unitId}"]').scrollIntoView({block:'center',behavior:'instant'});new Promise(resolve=>setTimeout(resolve,150))`);
-        const sizes = await evaluate(`(() => {const control=document.querySelector('[data-product="${unitId}"] .unit-stepper');return {input:control.querySelector('input').clientWidth,buttons:[...control.querySelectorAll('button')].map(button=>({width:button.clientWidth,height:button.clientHeight})),overflow:document.documentElement.scrollWidth>innerWidth};})()`);
+        const sizes = await evaluate(`(() => {const control=document.querySelector('[data-product="${unitId}"] .unit-stepper');return {input:control.querySelector('input').clientWidth,compact:Boolean(control.closest('.catalog-carousel-track')),coarsePointer:matchMedia('(pointer:coarse)').matches,buttons:[...control.querySelectorAll('button')].map(button=>({width:button.clientWidth,height:button.clientHeight,outerWidth:button.getBoundingClientRect().width,outerHeight:button.getBoundingClientRect().height})),overflow:document.documentElement.scrollWidth>innerWidth};})()`);
         assert.ok(sizes.input>=30,'The numeric quantity must fit in the central box');
-        assert.ok(sizes.buttons.every(button=>button.width>=42&&button.height>=42),'Stepper buttons must be comfortable to touch');
+        const minCompactHeight = sizes.coarsePointer ? 36 : 32;
+        assert.ok(sizes.buttons.every(button=>sizes.compact?button.outerWidth>=minCompactHeight&&button.outerHeight>=minCompactHeight:button.width>=42&&button.height>=42),'Stepper buttons fit the catalog layout and pointer type');
         assert.equal(sizes.overflow,false);
         if([390,1440].includes(width)) {
           const shot=await command('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
