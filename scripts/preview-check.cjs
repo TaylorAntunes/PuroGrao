@@ -451,6 +451,8 @@ const { mock } = require('node:test');
     await evaluate("document.querySelector('#pf').requestSubmit();");
     await waitFor("!document.querySelector('#psave').disabled && document.querySelector('#pid').value === ''");
     await command('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/#produtos` });
+    await waitFor("Boolean(document.querySelector('[data-product=\"1\"] .product-photo'))");
+    await evaluate("document.querySelector('[data-product=\"1\"]').scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});");
     await waitFor("document.querySelector('[data-product=\"1\"] .product-photo')?.naturalWidth > 0");
     assert.equal(await evaluate("document.querySelector('[data-product=\"1\"] .product-photo').style.objectPosition"), '20% 75%');
     assert.equal(await evaluate("document.querySelector('[data-product=\"1\"] .product-photo').style.objectFit"), 'contain');
@@ -738,6 +740,163 @@ const { mock } = require('node:test');
     await waitFor("!document.querySelector('#mobile-menu').open");
     assert.equal(await evaluate("document.activeElement.matches('[data-open-menu]')"), true);
 
+    // Category carousels reuse the catalog cards. All extra products exist only in browser memory.
+    const carouselCatalog = await (await fetch(site + '/api/products')).json();
+    const carouselFixture = structuredClone(carouselCatalog);
+    const carouselWeightSource = carouselCatalog.products.find(product => product.sale_unit !== 'unit' && product.stock_grams > 1000);
+    const carouselUnitSource = carouselCatalog.products.find(product => product.sale_unit === 'unit' && product.stock_units > 2);
+    assert.ok(carouselWeightSource && carouselUnitSource, 'Carousel checks need both existing selling methods');
+    const carouselExtraProducts = Array.from({ length: 10 }, (_, index) => ({
+      ...carouselWeightSource, id: 100001 + index, name: `Chá carrossel ${String(index + 1).padStart(2, '0')}`,
+      category: 'Chás', best_seller_rank: 0, is_new: index === 9 ? 1 : 0, tuesday_promo: 0, discount_percent: 0,
+    }));
+    carouselExtraProducts.push({ ...carouselUnitSource, id: 100011, name: 'Chá carrossel por unidade', category: 'Chás', best_seller_rank: 0, is_new: 0, tuesday_promo: 0, discount_percent: 0 });
+    carouselFixture.products.push(...carouselExtraProducts);
+    const carouselCategoryIds = carouselFixture.products.filter(product => product.category === 'Chás').map(product => product.id);
+    const carouselPageBefore = await evaluate('location.href');
+    const carouselCartBefore = await evaluate("localStorage.getItem('puro-cart-weight-v1')");
+    const carouselThemeBefore = await evaluate('document.documentElement.dataset.theme');
+    const carouselTrack = "document.querySelector('.catalog-category-row[data-catalog-category=\"Chás\"] .catalog-carousel-track')";
+    const carouselRow = "document.querySelector('.catalog-category-row[data-catalog-category=\"Chás\"]')";
+    const carouselNodesPreserved = "window.__carouselNodes.every(card=>document.querySelector('#product-'+card.dataset.product)===card)";
+    try {
+      await evaluate(`loadCatalog(${JSON.stringify(carouselFixture)})`);
+      await evaluate('clearTimeout(promotionTimer)');
+      await waitFor("document.querySelector('#grid').classList.contains('catalog-rows') && document.querySelectorAll('.catalog-category-row').length>0");
+      const groupedCategories = await evaluate("[...document.querySelectorAll('#grid > .catalog-category-row')].map(row=>({name:row.dataset.catalogCategory,title:row.querySelector('h3').textContent,ids:[...row.querySelectorAll('.catalog-carousel-track > .card')].map(card=>Number(card.dataset.product))}))");
+      assert.deepEqual(groupedCategories.map(row => row.name).sort(), [...new Set(carouselFixture.products.map(product => product.category))].sort());
+      for (const row of groupedCategories) {
+        assert.ok(row.title.includes(row.name), 'Each row names its category');
+        assert.deepEqual(row.ids, carouselFixture.products.filter(product => product.category === row.name).map(product => product.id), 'Manual product order remains intact within each category');
+      }
+      assert.equal(await evaluate("document.querySelectorAll('#grid .card').length"), carouselFixture.products.length);
+      assert.ok(await evaluate("(() => {const ids=[...document.querySelectorAll('#grid [id]')].map(node=>node.id);return new Set(ids).size===ids.length;})()"), 'Grouping must never clone product or control IDs');
+      assert.ok(await evaluate("[...document.querySelectorAll('.catalog-category-row [data-carousel-direction]')].every(button=>button.tagName==='BUTTON' && button.getAttribute('aria-label') && document.getElementById(button.getAttribute('aria-controls'))===button.closest('.catalog-category-row').querySelector('.catalog-carousel-track'))"), 'Carousel arrows identify the track they control');
+      await evaluate("(() => {window.__carouselNodes=[...document.querySelectorAll('#grid .card')];document.querySelector('[data-product=\"100001\"] [data-weight=\"custom\"]').click();const weight=document.querySelector('[data-product=\"100001\"] [data-custom-weight]');weight.value='333';weight.dispatchEvent(new Event('input',{bubbles:true}));const quantity=document.querySelector('[data-product=\"100011\"] [data-unit-quantity]');quantity.value='2';quantity.dispatchEvent(new Event('input',{bubbles:true}));document.querySelector('[data-product=\"1\"] [data-add]').click();})()");
+      const carouselCartWithProduct = await evaluate("localStorage.getItem('puro-cart-weight-v1')");
+      assert.notEqual(carouselCartWithProduct, carouselCartBefore, 'A real existing product can still be added from its category row');
+      await evaluate("document.querySelector('.filters [data-category=\"Chás\"]').click();");
+      await waitFor("!document.querySelector('#grid').classList.contains('catalog-rows')");
+      assert.deepEqual(await evaluate("[...document.querySelectorAll('#grid > .card:not([hidden])')].map(card=>Number(card.dataset.product))"), carouselCategoryIds, 'A specific category retains the normal filtered grid');
+      assert.deepEqual(await evaluate("[...document.querySelectorAll('#grid > .card')].map(card=>Number(card.dataset.product))"), carouselFixture.products.map(product => product.id), 'Flattening restores the original manual order');
+      assert.equal(await evaluate(carouselNodesPreserved), true, 'Category filtering moves the same card nodes');
+      await evaluate("document.querySelector('[data-clear-filters]').click();document.querySelector('#search').value='carrossel';document.querySelector('#search').dispatchEvent(new Event('input'));");
+      await waitFor("!document.querySelector('#grid').classList.contains('catalog-rows')");
+      assert.deepEqual(await evaluate("[...document.querySelectorAll('#grid > .card')].map(card=>Number(card.dataset.product))"), carouselFixture.products.map(product => product.id), 'Search restores the complete source order before hiding nonmatches');
+      assert.deepEqual(await evaluate("[...document.querySelectorAll('#grid > .card:not([hidden])')].map(card=>Number(card.dataset.product))"), carouselExtraProducts.map(product => product.id), 'Search results remain a single grid');
+      assert.equal(await evaluate(carouselNodesPreserved), true);
+      await evaluate("document.querySelector('#search').value='   ';document.querySelector('#search').dispatchEvent(new Event('input'));");
+      await waitFor("document.querySelector('#grid').classList.contains('catalog-rows')");
+      assert.equal(await evaluate(carouselNodesPreserved), true, 'Returning to all products preserves the same controls');
+      assert.equal(await evaluate("document.querySelector('[data-product=\"100001\"] [data-custom-weight]').value"), '333');
+      assert.equal(await evaluate("document.querySelector('[data-product=\"100001\"] [data-weight=\"custom\"]').getAttribute('aria-pressed')"), 'true');
+      assert.equal(await evaluate("document.querySelector('[data-product=\"100011\"] [data-unit-quantity]').value"), '2');
+      assert.equal(await evaluate("localStorage.getItem('puro-cart-weight-v1')"), carouselCartWithProduct, 'Grouping, category filters and search leave the cart intact');
+      await evaluate("document.querySelector('#search').value='';document.querySelector('#search').dispatchEvent(new Event('input'));");
+
+      for (const width of [360, 390, 430, 768, 1024, 1440]) {
+        await command('Emulation.setDeviceMetricsOverride', { width, height: width < 768 ? 844 : 1000, deviceScaleFactor: 1, mobile: width < 768 });
+        for (const theme of ['light', 'dark']) {
+          await setTheme(theme);
+          await evaluate(`${carouselRow}.scrollIntoView({block:'start',behavior:'instant'});${carouselTrack}.scrollTo({left:0,behavior:'instant'});`);
+          await waitFor(`${carouselRow}.querySelector('[data-carousel-direction="previous"]').disabled && !${carouselRow}.querySelector('[data-carousel-direction="next"]').disabled`);
+          const trackBounds = await evaluate(`(() => {const track=${carouselTrack},box=track.getBoundingClientRect();return {overflow:track.scrollWidth>track.clientWidth,left:box.left,right:box.right,cards:[...track.children].every(card=>card.getBoundingClientRect().width<=track.clientWidth+1)};})()`);
+          assert.equal(trackBounds.overflow, true, `The fixture must exercise horizontal movement at ${width}px`);
+          assert.ok(trackBounds.left >= 0 && trackBounds.right <= width + 1 && trackBounds.cards, `The row and each card fit ${theme} ${width}`);
+          await fitViewport(width, `Category carousels ${theme} ${width}`);
+          await evaluate(`${carouselRow}.querySelector('[data-carousel-direction="next"]').click();`);
+          await waitFor(`${carouselTrack}.scrollLeft>20 && !${carouselRow}.querySelector('[data-carousel-direction="previous"]').disabled`);
+          await evaluate(`${carouselRow}.querySelector('[data-carousel-direction="previous"]').click();`);
+          await waitFor(`${carouselTrack}.scrollLeft<=1 && ${carouselRow}.querySelector('[data-carousel-direction="previous"]').disabled`);
+          await evaluate(`${carouselTrack}.scrollTo({left:${carouselTrack}.scrollWidth,behavior:'instant'});`);
+          await waitFor(`${carouselRow}.querySelector('[data-carousel-direction="next"]').disabled && !${carouselRow}.querySelector('[data-carousel-direction="previous"]').disabled`);
+          await evaluate(`${carouselTrack}.scrollTo({left:0,behavior:'instant'});`);
+          if ([390, 1440].includes(width)) await viewportShot(`catalog-carousels-${theme}-${width}.png`);
+        }
+      }
+
+      // Focusing a clicked control must not move a partially visible card between press and release.
+      for (const width of [1440, 390]) {
+        await command('Emulation.setDeviceMetricsOverride', { width, height: width < 768 ? 844 : 1000, deviceScaleFactor: 1, mobile: width < 768 });
+        const partialCardClick = await evaluate(`(async () => {
+          const track=${carouselTrack},card=document.querySelector('#product-100005'),button=card.querySelector('[data-weight="100"]');
+          document.activeElement?.blur();card.querySelector('[data-weight="250"]').click();
+          window.__carouselSnapBefore=track.style.scrollSnapType;track.style.scrollSnapType='none';
+          const frame=track.getBoundingClientRect(),control=button.getBoundingClientRect();
+          track.scrollTo({left:track.scrollLeft+control.right-frame.right+16,behavior:'instant'});
+          scrollBy({top:button.getBoundingClientRect().top-innerHeight/2,behavior:'instant'});
+          await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+          const box=button.getBoundingClientRect(),item=card.getBoundingClientRect(),clip=track.getBoundingClientRect();
+          const point={x:box.x+box.width/2,y:box.y+box.height/2};
+          return {...point,scroll:track.scrollLeft,partial:item.left<clip.right&&item.right>clip.right+20,hit:document.elementFromPoint(point.x,point.y)?.closest('button')===button};
+        })()`);
+        assert.equal(partialCardClick.partial, true, `The next product must actually be clipped at ${width}px`);
+        assert.equal(partialCardClick.hit, true, `The weight button is visibly clickable at ${width}px`);
+        if (width === 1440) {
+          await command('Input.dispatchMouseEvent', { type: 'mouseMoved', x: partialCardClick.x, y: partialCardClick.y });
+          await command('Input.dispatchMouseEvent', { type: 'mousePressed', x: partialCardClick.x, y: partialCardClick.y, button: 'left', clickCount: 1 });
+          const pressStillHitsButton = await evaluate(`document.elementFromPoint(${partialCardClick.x},${partialCardClick.y})?.closest('button')===document.querySelector('#product-100005 [data-weight="100"]')`);
+          await command('Input.dispatchMouseEvent', { type: 'mouseReleased', x: partialCardClick.x, y: partialCardClick.y, button: 'left', clickCount: 1 });
+          assert.equal(pressStillHitsButton, true, 'Mouse focus must not move the button before release');
+        } else {
+          await command('Emulation.setTouchEmulationEnabled', { enabled: true });
+          await command('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: partialCardClick.x, y: partialCardClick.y, id: 1 }] });
+          await new Promise(resolve => setTimeout(resolve, 30));
+          await command('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+          await command('Emulation.setTouchEmulationEnabled', { enabled: false });
+        }
+        await waitFor("document.querySelector('#product-100005 [data-weight=\"100\"]').getAttribute('aria-pressed')==='true'");
+        assert.ok(Math.abs(await evaluate(`${carouselTrack}.scrollLeft`) - partialCardClick.scroll) <= 1, `A ${width < 768 ? 'touch' : 'mouse'} weight selection must not unexpectedly slide the row`);
+        await evaluate(`${carouselTrack}.style.scrollSnapType=window.__carouselSnapBefore;delete window.__carouselSnapBefore;`);
+      }
+
+      // Real touch input must pan the track without moving the page sideways or opening a photo.
+      await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+      await evaluate(`${carouselRow}.scrollIntoView({block:'start',behavior:'instant'});${carouselTrack}.scrollTo({left:0,behavior:'instant'});`);
+      await waitFor(`${carouselTrack}.scrollLeft<=1`);
+      await command('Emulation.setTouchEmulationEnabled', { enabled: true });
+      const swipePoint = await evaluate(`(() => {const box=${carouselTrack}.getBoundingClientRect();return {x:Math.min(box.right-24,innerWidth-24),y:Math.max(box.top+60,140)};})()`);
+      assert.equal(await evaluate(`Boolean(document.elementFromPoint(${swipePoint.x},${swipePoint.y})?.closest('.catalog-carousel-track'))`), true, 'The swipe begins inside a visible product row');
+      await command('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ ...swipePoint, id: 1 }] });
+      for (let step = 1; step <= 8; step++) {
+        await command('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: swipePoint.x - step * 32, y: swipePoint.y, id: 1 }] });
+        await new Promise(resolve => setTimeout(resolve, 20));
+      }
+      await command('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await command('Emulation.setTouchEmulationEnabled', { enabled: false });
+      await waitFor(`${carouselTrack}.scrollLeft>30`);
+      assert.equal(await evaluate("document.querySelector('#product-image-dialog').open"), false, 'Dragging a product photo must not open the image viewer');
+      await fitViewport(390, 'Real mobile category swipe');
+
+      // Shelf links and catalog refreshes must reveal a product beyond the visible part of its row.
+      await evaluate(`${carouselTrack}.scrollTo({left:0,behavior:'instant'});`);
+      assert.ok(await evaluate("document.querySelector('#product-100010').getBoundingClientRect().left>=innerWidth"), 'The linked product starts outside the visible row');
+      await evaluate("document.querySelector('.highlight-card[data-choose-product=\"100010\"] .highlight-info').click();");
+      try {
+        await waitFor(`(() => {const card=document.querySelector('#product-100010'),box=card.getBoundingClientRect(),track=${carouselTrack}.getBoundingClientRect();return document.activeElement===card&&box.left>=track.left-1&&box.right<=track.right+1;})()`);
+      } catch (error) {
+        console.log('Carousel focus diagnostic:', await evaluate(`(() => {const card=document.querySelector('#product-100010'),box=card.getBoundingClientRect(),track=${carouselTrack};return {active:document.activeElement.id,tag:document.activeElement.tagName,hash:location.hash,card:{left:box.left,right:box.right,top:box.top},track:{left:track.getBoundingClientRect().left,right:track.getBoundingClientRect().right,scrollLeft:track.scrollLeft,scrollWidth:track.scrollWidth,clientWidth:track.clientWidth},pointerFocusing:undefined};})()`));
+        throw error;
+      }
+      await evaluate("document.querySelector('#product-100010 [data-weight=\"250\"]').focus();");
+      await evaluate(`loadCatalog(${JSON.stringify(carouselFixture)})`);
+      await evaluate('clearTimeout(promotionTimer)');
+      await waitFor(`(() => {const control=document.querySelector('#product-100010 [data-weight="250"]'),box=control.closest('.card').getBoundingClientRect(),track=${carouselTrack}.getBoundingClientRect();return document.activeElement===control&&box.left>=track.left-1&&box.right<=track.right+1;})()`);
+      assert.equal(await evaluate("document.querySelector('[data-product=\"100001\"] [data-custom-weight]').value"), '333', 'A catalog refresh retains weight selection');
+      assert.equal(await evaluate("document.querySelector('[data-product=\"100011\"] [data-unit-quantity]').value"), '2', 'A catalog refresh retains unit selection');
+      assert.equal(await evaluate("localStorage.getItem('puro-cart-weight-v1')"), carouselCartWithProduct);
+    } finally {
+      await command('Emulation.setTouchEmulationEnabled', { enabled: false });
+      await evaluate(`history.replaceState(null,'',${JSON.stringify(carouselPageBefore)});localStorage.setItem('puro-cart-weight-v1',${JSON.stringify(carouselCartBefore)});window.dispatchEvent(new StorageEvent('storage',{key:'puro-cart-weight-v1'}));document.querySelector('#search').value='';document.querySelector('[data-clear-filters]').click();`);
+      await evaluate(`loadCatalog(${JSON.stringify(carouselCatalog)})`);
+      await evaluate(`delete window.__carouselNodes;${JSON.stringify(carouselExtraProducts.map(product => product.id))}.forEach(id=>selections.delete(id));`);
+      await setTheme(carouselThemeBefore);
+      await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+      await waitFor("document.querySelector('.filters').parentElement.className==='filter-dialog-slot'");
+    }
+    assert.equal(await evaluate("localStorage.getItem('puro-cart-weight-v1')"), carouselCartBefore);
+    console.log('Category carousels passed: original card identity/order, category and search grids, weights/units/cart, accessible arrows, edge states, mouse/touch on clipped cards, real mobile swipe, offscreen product links, refresh focus and six widths in both themes.');
+
     // Verify the six requested widths and both token sets on the Home and cart.
     for (const width of [360, 390, 430, 768, 1024, 1440]) {
       await command('Emulation.setDeviceMetricsOverride', { width, height: width < 768 ? 844 : 1000, deviceScaleFactor: 1, mobile: width < 768 });
@@ -826,6 +985,7 @@ const { mock } = require('node:test');
     await viewportShot('redesign-kits-light.png');
     await command('Page.navigate', { url: site + '/ofertas' });
     await waitFor("document.querySelectorAll('.card').length===12");
+    assert.equal(await evaluate("document.querySelector('#grid').classList.contains('catalog-rows') || Boolean(document.querySelector('#grid .catalog-category-row'))"), false, 'The offers page preserves its existing flat grid');
     assert.match(await evaluate("document.querySelector('#catalog-status').textContent"), /Não há ofertas/);
     await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
     await evaluate("document.querySelector('[data-open-filters]').click();document.querySelector('.filters [data-category=\"Todos\"]').click();");
@@ -833,6 +993,7 @@ const { mock } = require('node:test');
     await waitFor("document.querySelector('#catalog-status').getBoundingClientRect().top>=document.querySelector('.store-header').getBoundingClientRect().bottom && document.querySelector('#catalog-status').getBoundingClientRect().top<180");
     assert.equal(await evaluate("document.querySelector('#filter-dialog .btn')"), null);
     await evaluate(`(() => {const data=${JSON.stringify(promotionalCatalog)};const original=window.fetch;window.fetch=(...args)=>args[0]==='/api/products'?Promise.resolve(new Response(JSON.stringify(data),{headers:{'Content-Type':'application/json'}})):original(...args);return loadCatalog();})()`);
+    assert.equal(await evaluate("document.querySelector('#grid').classList.contains('catalog-rows') || Boolean(document.querySelector('#grid .catalog-category-row'))"), false, 'Refreshing offers must never create category carousels');
     assert.equal(await evaluate("document.querySelectorAll('.card:not([hidden])').length"), 0);
     assert.match(await evaluate("document.querySelector('#catalog-status').textContent"), /Não há ofertas/);
     for (const width of [360, 390, 430, 768, 1024, 1440]) {
@@ -1241,7 +1402,9 @@ const { mock } = require('node:test');
     if (process.argv.includes('--live')) {
       // Inspect the user's running storefront without writing to its database.
       await command('Page.navigate', { url: 'http://localhost:3000/#produtos' });
-      await waitFor("document.querySelector('.product-photo')?.naturalWidth > 0");
+      await waitFor("Boolean(document.querySelector('#grid .product-photo'))");
+      await evaluate("document.querySelector('#grid .product-photo').scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});");
+      await waitFor("document.querySelector('#grid .product-photo')?.naturalWidth > 0");
       const ids = await evaluate("[...document.querySelectorAll('.has-photo')].map(frame=>frame.closest('[data-product]').dataset.product)");
       for (const id of ids) await assertPhotoFrame(`[data-product="${id}"] .product-photo`);
       await evaluate("document.querySelector('.has-photo').scrollIntoView({block:'center',behavior:'instant'});new Promise(resolve=>setTimeout(resolve,150));");
